@@ -1,10 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>To-Do List</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>To-Do List</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app {
+  background: white;
+  padding: 30px;
+  width: 350px;
+  border-radius: 10px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 15px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+button:hover {
+  background: #5563c1;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: #f3f3f3;
+  padding: 10px;
+  margin: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+}
+
+.delete {
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+</style>
 </head>
+
 <body>
 
 <div class="app">
@@ -18,6 +89,50 @@
   <ul id="todoList"></ul>
 </div>
 
-<script src="script.js"></script>
+<script>
+const todoInput = document.getElementById("todoInput");
+const addBtn = document.getElementById("addBtn");
+const todoList = document.getElementById("todoList");
+const searchInput = document.getElementById("searchInput");
+
+let todos = [];
+
+// Add todo
+addBtn.addEventListener("click", () => {
+  const text = todoInput.value.trim();
+  if (text === "") return;
+
+  todos.push(text);
+  todoInput.value = "";
+  renderTodos();
+});
+
+// Delete todo
+function deleteTodo(index) {
+  todos.splice(index, 1);
+  renderTodos();
+}
+
+// Render + Search
+function renderTodos() {
+  const search = searchInput.value.toLowerCase();
+  todoList.innerHTML = "";
+
+  todos.forEach((todo, index) => {
+    if (todo.toLowerCase().includes(search)) {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <span>${todo}</span>
+        <button class="delete" onclick="deleteTodo(${index})">X</button>
+      `;
+      todoList.appendChild(li);
+    }
+  });
+}
+
+// Search bar
+searchInput.addEventListener("input", renderTodos);
+</script>
+
 </body>
 </html>
