@@ -2,54 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My To-Do List</title>
+  <title>My Tasks</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container" style="width: 600px;">
-    <div id="userDisplay" style="font-weight:bold; margin-bottom:10px;"></div>
+  <div class="container" style="width: 500px;">
     <h2>My Tasks</h2>
-    <table id="Todolist">
-      <thead>
-        <tr><th>Task</th><th>Priority</th><th>Done</th><th>Action</th></tr>
-      </thead>
+    <table id="list">
+      <thead><tr><th>Task</th><th>Priority</th><th>Action</th></tr></thead>
       <tbody></tbody>
     </table>
-    <button onclick="location.href='save.html'">+ Add New Task</button>
-    <button onclick="localStorage.clear(); location.href='login.html';" style="background:#444;">Logout</button>
+    <button onclick="location.href='save.html'" style="margin-top:20px;">+ Add Task</button>
+    <button onclick="localStorage.clear(); location.href='login.html';" style="background:#444; margin-top:10px;">Logout</button>
   </div>
   <script type="module">
     import { supabase } from './supabase.js';
-    const username = localStorage.getItem("username");
-    if (!username) location.href = "login.html";
-    document.getElementById("userDisplay").innerText = `User: ${username}`;
+    const user = localStorage.getItem("username");
+    if (!user) location.href = "login.html";
 
-    async function loadTasks() {
-      const { data } = await supabase.from('todolist').select('*').eq('username', username);
-      const tbody = document.querySelector("#Todolist tbody");
-      tbody.innerHTML = "";
-      if (data) {
-        data.forEach(task => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td>${task.uzd}</td><td>${task.svarigums}</td><td></td><td></td>`;
-          const cb = document.createElement("input");
-          cb.type = "checkbox";
-          cb.checked = task.pabeigts;
-          cb.onclick = async () => await supabase.from("todolist").update({ pabeigts: cb.checked }).eq("id", task.id);
-          tr.cells[2].appendChild(cb);
-          const del = document.createElement("button");
-          del.innerText = "✖";
-          del.className = "delete";
-          del.onclick = async () => {
-            await supabase.from("todolist").delete().eq("id", task.id);
-            tr.remove();
-          };
-          tr.cells[3].appendChild(del);
-          tbody.appendChild(tr);
-        });
-      }
+    async function load() {
+      const { data } = await supabase.from('todolist').select('*').eq('username', user);
+      const tbody = document.querySelector("#list tbody");
+      tbody.innerHTML = data ? data.map(t => `
+        <tr>
+          <td>${t.uzd}</td>
+          <td>${t.svarigums}</td>
+          <td><button onclick="del('${t.id}')" style="width:auto; padding:5px 10px; background:red;">✖</button></td>
+        </tr>`).join('') : "";
     }
-    loadTasks();
+    window.del = async (id) => { 
+      await supabase.from("todolist").delete().eq("id", id); 
+      load(); 
+    };
+    load();
   </script>
 </body>
 </html>
