@@ -9,6 +9,7 @@
   <div class="container">
     <div class="todo-app">
       <h1>📝 My To-Do List</h1>
+      <p id="userDisplay" style="font-weight:bold;"></p>
 
       <input id="todoInput" type="text" placeholder="Add a new task..." />
       <button id="addBtn">Add Task</button>
@@ -16,47 +17,84 @@
       <input id="searchInput" type="text" placeholder="Search tasks..." />
 
       <ul id="todoList"></ul>
+      
+      <button onclick="localStorage.clear(); location.href='login.html';" style="background:#444; margin-top:20px;">Logout</button>
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { supabase } from './supabase.js';
+
     const todoInput = document.getElementById("todoInput");
     const addBtn = document.getElementById("addBtn");
     const todoList = document.getElementById("todoList");
     const searchInput = document.getElementById("searchInput");
+    const username = localStorage.getItem("username");
 
-    let todos = [];
-
-    addBtn.addEventListener("click", () => {
-      const value = todoInput.value.trim();
-      if (!value) return;
-      todos.push(value);
-      todoInput.value = "";
-      renderTodos();
-    });
-
-    function deleteTodo(idx) {
-      todos.splice(idx, 1);
-      renderTodos();
+    // Redirect to login if no user is found
+    if (!username) {
+      location.href = "login.html";
+    } else {
+      document.getElementById("userDisplay").innerText = `User: ${username}`;
     }
 
-    function renderTodos() {
+    // Load tasks from Supabase on startup
+    async function loadTasks() {
+      const { data, error } = await supabase
+        .from('todolist')
+        .select('*')
+        .eq('username', username);
+
+      if (error) return console.error(error);
+      renderTodos(data);
+    }
+
+    // Add task to Supabase
+    addBtn.addEventListener("click", async () => {
+      const value = todoInput.value.trim();
+      if (!value) return;
+
+      const { error } = await supabase.from("todolist").insert([{ 
+        uzd: value, 
+        username: username, 
+        pabeigts: false,
+        svarigums: "Anytime",
+        uzdveids: "Personal"
+      }]);
+
+      if (!error) {
+        todoInput.value = "";
+        loadTasks();
+      }
+    });
+
+    // Delete task from Supabase
+    window.deleteTodo = async (id) => {
+      const { error } = await supabase.from("todolist").delete().eq("id", id);
+      if (!error) loadTasks();
+    };
+
+    function renderTodos(tasks) {
       const search = searchInput.value.toLowerCase();
       todoList.innerHTML = "";
 
-      todos.forEach((todo, index) => {
-        if (todo.toLowerCase().includes(search)) {
+      tasks.forEach((task) => {
+        if (task.uzd.toLowerCase().includes(search)) {
           const li = document.createElement("li");
+          li.style.display = "flex";
+          li.style.justifyContent = "space-between";
+          li.style.marginBottom = "10px";
           li.innerHTML = `
-            <span>${todo}</span>
-            <button class="delete" onclick="deleteTodo(${index})">✖</button>
+            <span>${task.uzd}</span>
+            <button class="delete" onclick="deleteTodo('${task.id}')" style="width:auto; margin:0;">✖</button>
           `;
           todoList.appendChild(li);
         }
       });
     }
 
-    searchInput.addEventListener("input", renderTodos);
+    searchInput.addEventListener("input", loadTasks);
+    loadTasks();
   </script>
 </body>
 </html>
