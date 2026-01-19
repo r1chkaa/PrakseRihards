@@ -26,12 +26,12 @@ async function loadTodos() {
 
 /* ADD TODO */
 addBtn.addEventListener("click", async () => {
-  const text = todoInput.value.trim();
-  if (!text) return;
+  const title = todoInput.value.trim();
+  if (!title) return;
 
   const { error } = await supabase
     .from("todos")
-    .insert({ text });
+    .insert({ title });
 
   if (error) {
     console.error(error);
@@ -54,10 +54,10 @@ function renderTodos() {
   todoList.innerHTML = "";
 
   todos.forEach(todo => {
-    if (todo.text.toLowerCase().includes(search)) {
+    if (todo.title.toLowerCase().includes(search)) {
       const li = document.createElement("li");
       li.innerHTML = `
-        <span>${todo.text}</span>
+        <span>${todo.title}</span>
         <button class="delete">X</button>
       `;
 
