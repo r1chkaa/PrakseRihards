@@ -1,14 +1,13 @@
 body {
   font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #667eea, #764ba2);
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 0;
 }
-
-.app, .form-container, .table-container {
+.container, .form {
   background: white;
   padding: 30px;
   width: 400px;
@@ -16,12 +15,6 @@ body {
   box-shadow: 0 15px 30px rgba(0,0,0,0.2);
   text-align: center;
 }
-
-h1, h2 {
-  margin-bottom: 15px;
-  color: #333;
-}
-
 input, select {
   width: 100%;
   padding: 10px;
@@ -30,7 +23,6 @@ input, select {
   border: 1px solid #ccc;
   box-sizing: border-box;
 }
-
 button {
   width: 100%;
   padding: 10px;
@@ -39,65 +31,9 @@ button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-bottom: 10px;
-}
-
-button:hover {
-  background: #5563c1;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
   margin-top: 10px;
 }
-
-li {
-  background: #f3f3f3;
-  padding: 10px;
-  margin: 6px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 5px;
-}
-
-.delete {
-  background: red;
-  color: white;
-  border: none;
-  padding: 5px 8px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
-}
-
-th {
-  background-color: #667eea;
-  color: white;
-  border-radius: 5px;
-}
-
-#userDisplay {
-  text-align: right;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.buttons button {
-  width: 48%;
-  display: inline-block;
-  margin: 5px 1%;
-}
+button:hover { background: #5563c1; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+.delete { background: #ff4d4d; width: auto; padding: 5px 10px; }
