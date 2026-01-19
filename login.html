@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="form">
+    <h1>Login</h1>
+    <input id="username" type="text" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button id="loginBtn">Login</button>
+    <p>New? <a href="register.html">Register here</a></p>
+    <p id="message"></p>
+  </div>
+  <script type="module">
+    import { supabase } from './supabase.js';
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      const { data } = await supabase.from('users').select('*').eq('username', user).eq('password', pass).single();
+      if (data) {
+        localStorage.setItem("username", user);
+        location.href = 'todolistatbildes.html';
+      } else {
+        document.getElementById("message").innerText = "Invalid credentials";
+      }
+    });
+  </script>
+</body>
+</html>
