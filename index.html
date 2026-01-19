@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My To-Do App</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Mans Plānotājs</title>
+  <link rel="stylesheet" href="style (1).css">
 </head>
 <body>
   <div class="container">
@@ -18,12 +18,12 @@
 
       <ul id="todoList"></ul>
       
-      <button onclick="localStorage.clear(); location.href='login.html';" style="background:#444; margin-top:20px;">Logout</button>
+      <button onclick="localStorage.clear(); location.href='login.html';" style="background:#444; margin-top:20px; color:white;">Logout</button>
     </div>
   </div>
 
   <script type="module">
-    import { supabase } from './supabase.js';
+    import { supabase } from './supabase (4).js';
 
     const todoInput = document.getElementById("todoInput");
     const addBtn = document.getElementById("addBtn");
@@ -31,25 +31,28 @@
     const searchInput = document.getElementById("searchInput");
     const username = localStorage.getItem("username");
 
-    // Redirect to login if no user is found
+    // Redirect to login if not logged in
     if (!username) {
       location.href = "login.html";
     } else {
       document.getElementById("userDisplay").innerText = `User: ${username}`;
     }
 
-    // Load tasks from Supabase on startup
+    // Load tasks from Supabase
     async function loadTasks() {
       const { data, error } = await supabase
         .from('todolist')
         .select('*')
         .eq('username', username);
 
-      if (error) return console.error(error);
+      if (error) {
+        console.error("Fetch error:", error);
+        return;
+      }
       renderTodos(data);
     }
 
-    // Add task to Supabase
+    // Save task to Supabase
     addBtn.addEventListener("click", async () => {
       const value = todoInput.value.trim();
       if (!value) return;
@@ -62,13 +65,16 @@
         uzdveids: "Personal"
       }]);
 
-      if (!error) {
+      if (error) {
+        alert("Error saving task: Check your Supabase column names!");
+        console.error(error);
+      } else {
         todoInput.value = "";
         loadTasks();
       }
     });
 
-    // Delete task from Supabase
+    // Make delete function global so HTML can see it
     window.deleteTodo = async (id) => {
       const { error } = await supabase.from("todolist").delete().eq("id", id);
       if (!error) loadTasks();
@@ -83,17 +89,18 @@
           const li = document.createElement("li");
           li.style.display = "flex";
           li.style.justifyContent = "space-between";
-          li.style.marginBottom = "10px";
+          li.style.padding = "10px";
+          li.style.borderBottom = "1px solid #ddd";
           li.innerHTML = `
             <span>${task.uzd}</span>
-            <button class="delete" onclick="deleteTodo('${task.id}')" style="width:auto; margin:0;">✖</button>
+            <button class="delete" onclick="deleteTodo('${task.id}')" style="width:auto; margin:0; background:red; color:white;">✖</button>
           `;
           todoList.appendChild(li);
         }
       });
     }
 
-    searchInput.addEventListener("input", loadTasks);
+    searchInput.addEventListener("input", () => loadTasks());
     loadTasks();
   </script>
 </body>
