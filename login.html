@@ -22,7 +22,7 @@
       const { data } = await supabase.from('users').select('*').eq('username', user).eq('password', pass).maybeSingle();
       if (data) {
         localStorage.setItem("username", user);
-        location.href = 'todolistatbildes.html';
+        location.href = 'index.html';
       } else {
         document.getElementById("message").innerText = "Invalid credentials";
       }
