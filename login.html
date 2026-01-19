@@ -19,7 +19,7 @@
     document.getElementById("loginBtn").addEventListener("click", async () => {
       const user = document.getElementById("username").value;
       const pass = document.getElementById("password").value;
-      const { data } = await supabase.from('users').select('*').eq('username', user).eq('password', pass).single();
+      const { data } = await supabase.from('users').select('*').eq('username', user).eq('password', pass).maybeSingle();
       if (data) {
         localStorage.setItem("username", user);
         location.href = 'todolistatbildes.html';
