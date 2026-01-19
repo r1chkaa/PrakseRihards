@@ -6,81 +6,40 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="header">
-    <div id="userDisplay" class="user-name"></div>
-    <h2>Create a Task</h2>
-    <p>Visible only to you and admins.</p>
-  </div>
-
   <div class="form">
-    <label>Task:</label>
-    <input id="uzd" type="text" placeholder="Describe your task..." minlength="5" required>
-
-    <label>Type:</label>
+    <div id="userDisplay" style="font-weight:bold; margin-bottom:10px;"></div>
+    <h2>New Task</h2>
+    <input id="uzd" type="text" placeholder="Task description..." minlength="5">
     <select id="uzdveids">
       <option>School Work</option>
       <option>Homework</option>
       <option>Personal</option>
     </select>
-
-    <label>Priority:</label>
     <select id="svarigums">
       <option>Urgent</option>
       <option>This Week</option>
       <option>Anytime</option>
     </select>
-
     <button id="send">Save Task</button>
-    <div class="buttons">
-      <button onclick="location.href='todolistatbildes.html'">View All Tasks</button>
-      <button onclick="location.href='index.html'">Back Home</button>
-    </div>
-
+    <button onclick="location.href='todolistatbildes.html'" style="background:#444;">View List</button>
     <p id="message"></p>
   </div>
-
-  <script>
-    const username = localStorage.getItem("username");
-    if (!username) window.location.href = "login.html";
-    document.getElementById("userDisplay").innerText = username;
-  </script>
-
   <script type="module">
     import { supabase } from './supabase.js';
-
-    function cooldown(seconds) {
-      const btn = document.getElementById("send");
-      const msg = document.getElementById("message");
-      btn.disabled = true;
-      let t = seconds;
-      msg.innerText = `Saved! Cooldown: ${t}s`;
-
-      const interval = setInterval(() => {
-        t--;
-        msg.innerText = `Saved! Cooldown: ${t}s`;
-        if (t <= 0) {
-          clearInterval(interval);
-          btn.disabled = false;
-          msg.innerText = "Ready!";
-        }
-      }, 1000);
-    }
+    const username = localStorage.getItem("username");
+    if (!username) location.href = "login.html";
+    document.getElementById("userDisplay").innerText = `User: ${username}`;
 
     document.getElementById("send").addEventListener("click", async () => {
       const uzd = document.getElementById("uzd").value;
       const uzdveids = document.getElementById("uzdveids").value;
       const svarigums = document.getElementById("svarigums").value;
-      const username = localStorage.getItem("username");
-
-      if (uzd.length < 5) {
-        document.getElementById("message").innerText = "Min 5 characters!";
-        return;
-      }
-
-      const { error } = await supabase.from("todolist").insert([{ uzd, uzdveids, svarigums, username }]);
-      if (error) return document.getElementById("message").innerText = error.message;
-
-      cooldown(10);
+      if (uzd.length < 5) return alert("Min 5 chars");
+      
+      const { error } = await supabase.from("todolist").insert([{ 
+        uzd, uzdveids, svarigums, username, pabeigts: false 
+      }]);
+      if (!error) location.href = 'todolistatbildes.html';
     });
   </script>
 </body>
