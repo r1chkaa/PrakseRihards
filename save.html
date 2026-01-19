@@ -7,46 +7,34 @@
 </head>
 <body>
   <div class="form">
-    <div id="userDisplay" style="font-weight:bold; margin-bottom:10px;"></div>
-    <h2>New Task</h2>
-    <input id="uzd" type="text" placeholder="Task description..." minlength="3">
+    <h2>📝 New Task</h2>
+    <input id="uzd" type="text" placeholder="Task name..." minlength="3">
     <select id="uzdveids">
-      <option value="School Work">School Work</option>
-      <option value="Homework">Homework</option>
       <option value="Personal">Personal</option>
+      <option value="School">School</option>
     </select>
     <select id="svarigums">
       <option value="Urgent">Urgent</option>
-      <option value="This Week">This Week</option>
       <option value="Anytime">Anytime</option>
     </select>
-    <button id="send">Save Task</button>
-    <button onclick="location.href='index.html'" style="background:#444;">View List</button>
-    <p id="message"></p>
+    <button id="save">Save Task</button>
+    <button onclick="location.href='index.html'" style="background:#444; margin-top:10px;">Back</button>
+    <p id="msg"></p>
   </div>
   <script type="module">
     import { supabase } from './supabase.js';
-    const username = localStorage.getItem("username");
-    if (!username) location.href = "login.html";
-    document.getElementById("userDisplay").innerText = `User: ${username}`;
+    const user = localStorage.getItem("username");
+    if (!user) location.href = "login.html";
 
-    document.getElementById("send").addEventListener("click", async () => {
-      const uzd = document.getElementById("uzd").value.trim();
-      const uzdveids = document.getElementById("uzdveids").value;
-      const svarigums = document.getElementById("svarigums").value;
-      const msg = document.getElementById("message");
-
+    document.getElementById("save").addEventListener("click", async () => {
       const { error } = await supabase.from("todolist").insert([{ 
-        uzd, uzdveids, svarigums, username, pabeigts: false 
+        uzd: document.getElementById("uzd").value, 
+        uzdveids: document.getElementById("uzdveids").value, 
+        svarigums: document.getElementById("svarigums").value, 
+        username: user 
       }]);
-
-      if (error) {
-        console.error(error);
-        msg.innerText = "Error: Check Supabase SQL Editor!";
-        msg.style.color = "red";
-      } else {
-        location.href = 'index.html';
-      }
+      if (error) { document.getElementById("msg").innerText = "Error: Did you run the SQL?"; }
+      else { location.href = 'index.html'; }
     });
   </script>
 </body>
