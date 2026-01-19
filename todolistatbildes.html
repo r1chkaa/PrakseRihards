@@ -28,26 +28,28 @@
       const { data } = await supabase.from('todolist').select('*').eq('username', username);
       const tbody = document.querySelector("#Todolist tbody");
       tbody.innerHTML = "";
-      data.forEach(task => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${task.uzd}</td><td>${task.svarigums}</td><td></td><td></td>`;
-        
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.checked = task.pabeigts;
-        cb.onclick = async () => await supabase.from("todolist").update({ pabeigts: cb.checked }).eq("id", task.id);
-        tr.cells[2].appendChild(cb);
+      if (data) {
+        data.forEach(task => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${task.uzd}</td><td>${task.svarigums}</td><td></td><td></td>`;
+          
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.checked = task.pabeigts;
+          cb.onclick = async () => await supabase.from("todolist").update({ pabeigts: cb.checked }).eq("id", task.id);
+          tr.cells[2].appendChild(cb);
 
-        const del = document.createElement("button");
-        del.innerText = "✖";
-        del.className = "delete";
-        del.onclick = async () => {
-          await supabase.from("todolist").delete().eq("id", task.id);
-          tr.remove();
-        };
-        tr.cells[3].appendChild(del);
-        tbody.appendChild(tr);
-      });
+          const del = document.createElement("button");
+          del.innerText = "✖";
+          del.className = "delete";
+          del.onclick = async () => {
+            await supabase.from("todolist").delete().eq("id", task.id);
+            tr.remove();
+          };
+          tr.cells[3].appendChild(del);
+          tbody.appendChild(tr);
+        });
+      }
     }
     loadTasks();
   </script>
