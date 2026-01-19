@@ -1,137 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>To-Do List</title>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.app {
-  background: white;
-  padding: 30px;
-  width: 350px;
-  border-radius: 10px;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-  text-align: center;
-}
-
-h1 {
-  margin-bottom: 15px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-button {
-  width: 100%;
-  padding: 10px;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-bottom: 10px;
-}
-
-button:hover {
-  background: #5563c1;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-li {
-  background: #f3f3f3;
-  padding: 10px;
-  margin: 6px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 5px;
-}
-
-.delete {
-  background: red;
-  color: white;
-  border: none;
-  padding: 5px 8px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-</style>
+  <title>todo</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
-<div class="app">
-  <h1>📝 To-Do List</h1>
+<!-- Parāda lietotājvārdu augšējā labajā stūrī -->
+<div id="userDisplay" style="
+  position: fixed;
+  top: 10px;
+  right: 15px;
+  font-size: 18px;
+  color: black;
+"></div>
 
-  <input type="text" id="todoInput" placeholder="Write in the 'todo'..." />
-  <button id="addBtn">Add</button>
-
-  <input type="text" id="searchInput" placeholder="Search todos..." />
-
-  <ul id="todoList"></ul>
-</div>
+<h2>To do list</h2>
+<p>Veido savu ToDo listu. To var redzēt tikai tu un admins.</p>
 
 <script>
-const todoInput = document.getElementById("todoInput");
-const addBtn = document.getElementById("addBtn");
-const todoList = document.getElementById("todoList");
-const searchInput = document.getElementById("searchInput");
+  // Pārbauda vai lietotājs ir ielogojies
+  if (!localStorage.getItem("username")) {
+    window.location.href = "login.html"
+  }
 
-let todos = [];
+  // Parāda lietotājvārdu
+  const username = localStorage.getItem("username")
+  document.getElementById("userDisplay").innerText = username
+</script>
 
-// Add todo
-addBtn.addEventListener("click", () => {
-  const text = todoInput.value.trim();
-  if (text === "") return;
+<!-- Uzdevuma ievade -->
+<label>Uzdevums</label><br>
+<input id="uzd" type="text" minlength="5" required placeholder="Apraksti uzdevumu!"><br><br>
 
-  todos.push(text);
-  todoInput.value = "";
-  renderTodos();
-});
+<label for="uzdveids">Uzdevuma veids:</label><br>
+<select id="uzdveids">
+  <option value="Skolas darbs">Skolas darbs</option>
+  <option value="Mājas darbs">Mājas darbs</option>
+  <option value="Personālais">Personālais</option>
+</select><br><br>
 
-// Delete todo
-function deleteTodo(index) {
-  todos.splice(index, 1);
-  renderTodos();
-}
+<label for="svarigums">Uzdevuma svarīgums</label><br>
+<select id="svarigums">
+  <option value="Steidzams">Steidzams</option>
+  <option value="Nedēļa pabeigšanai">Nedēļa pabeigšanai</option>
+  <option value="Kad gribi pabeidz">Kad gribi pabeidz</option>
+</select><br><br>
 
-// Render + Search
-function renderTodos() {
-  const search = searchInput.value.toLowerCase();
-  todoList.innerHTML = "";
+<button id="send">Submit</button>
 
-  todos.forEach((todo, index) => {
-    if (todo.toLowerCase().includes(search)) {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <span>${todo}</span>
-        <button class="delete" onclick="deleteTodo(${index})">X</button>
-      `;
-      todoList.appendChild(li);
+<br><br>
+<button onclick="window.location.href='todolist.html'">Skatīt visus uzd.</button>
+<button onclick="window.location.href='index.html'">Atpakaļ sākumā!</button>
+
+<p id="message"></p>
+
+<script type="module">
+  import { supabase } from './supabase.js'
+
+  // Cooldown funkcija pēc uzdevuma iesniegšanas
+  function startCooldown(seconds) {
+    const msgEl = document.getElementById("message")
+    const sendBtn = document.getElementById("send")
+
+    sendBtn.disabled = true
+    let timeLeft = seconds
+    msgEl.innerText = `Saved! Cooldown: ${timeLeft}s`
+
+    const interval = setInterval(() => {
+      timeLeft--
+      msgEl.innerText = `Saved! Cooldown: ${timeLeft}s`
+
+      if (timeLeft <= 0) {
+        clearInterval(interval)
+        msgEl.innerText = "Ready!"
+        sendBtn.disabled = false
+      }
+    }, 1000)
+  }
+
+  // Poga saglabāt uzdevumu
+  document.getElementById("send").addEventListener("click", async () => {
+    const uzd = document.getElementById("uzd").value
+    const uzdveids = document.getElementById("uzdveids").value
+    const svarigums = document.getElementById("svarigums").value
+    const username = localStorage.getItem("username")
+
+    // Minimālais garums
+    if (uzd.length < 5) {
+      document.getElementById("message").innerText = "Min 5 simboli!"
+      return
     }
-  });
-}
 
-// Search bar
-searchInput.addEventListener("input", renderTodos);
+    // Saglabā uzdevumu datubāzē
+    const { error } = await supabase
+      .from('todolist')
+      .insert([{ uzd, uzdveids, svarigums, username }])
+
+    if (error) {
+      document.getElementById("message").innerText = "Error: " + error.message
+      return
+    }
+
+    // Cooldown 10s
+    startCooldown(10)
+  })
 </script>
 
 </body>
