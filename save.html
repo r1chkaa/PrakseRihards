@@ -2,53 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Pievienot jaunu uzdevumu</title>
+  <title>Add New Task</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="form">
     <div id="userDisplay" style="font-weight:bold; margin-bottom:10px; color: #764ba2;"></div>
-    <h2>Ieraksti uzdevumu</h2>
-    <input id="uzd" type="text" placeholder="What needs to be done?" minlength="3">
-    <label style="display:block; text-align:left; font-size: 12px; margin-top: 10px;">Category</label>
+    <h2>📝 Create Task</h2>
+    <input id="uzd" type="text" placeholder="Task description..." minlength="3">
     <select id="uzdveids">
-      <option value="School Work">Skolas darbi</option>
-      <option value="Homework">Mājas darbi</option>
-      <option value="Personal">Personīgi</option>
+      <option value="School Work">School Work</option>
+      <option value="Homework">Homework</option>
+      <option value="Personal">Personal</option>
     </select>
-    <label style="display:block; text-align:left; font-size: 12px; margin-top: 10px;">Laika periods</label>
     <select id="svarigums">
-      <option value="Urgent">Steidzami</option>
-      <option value="This Week">Šonedēļ</option>
-      <option value="Anytime">Jebkad</option>
+      <option value="Urgent">Urgent</option>
+      <option value="This Week">This Week</option>
+      <option value="Anytime">Anytime</option>
     </select>
-    <button id="saveBtn">Saglabāt datubāzē</button>
-    <button onclick="location.href='index.html'" style="background:#444;">Atpakaļ uz sarakstu</button>
-    <p id="message" style="margin-top: 10px; font-size: 14px;"></p>
+    <button id="saveBtn">Save to Database</button>
+    <button onclick="location.href='index.html'" style="background:#444;">Back to List</button>
+    <p id="message"></p>
   </div>
   <script type="module">
     import { supabase } from './supabase.js';
     const username = localStorage.getItem("username");
-    const msg = document.getElementById("message");
     if (!username) {
       location.href = "login.html";
     } else {
-      document.getElementById("userDisplay").innerText = `Logged in as: ${username}`;
+      document.getElementById("userDisplay").innerText = `User: ${username}`;
     }
+
     document.getElementById("saveBtn").addEventListener("click", async () => {
       const uzd = document.getElementById("uzd").value.trim();
       const uzdveids = document.getElementById("uzdveids").value;
       const svarigums = document.getElementById("svarigums").value;
-      if (uzd.length < 3) {
-        msg.innerText = "Task is too short!";
-        msg.style.color = "red";
-        return;
-      }
+      const msg = document.getElementById("message");
+
       const { error } = await supabase.from("todolist").insert([{ 
         uzd, uzdveids, svarigums, username, pabeigts: false 
       }]);
+
       if (error) {
-        msg.innerText = "Error saving task";
+        console.error(error);
+        msg.innerText = "Error saving: Check SQL table columns!";
         msg.style.color = "red";
       } else {
         location.href = 'index.html';
