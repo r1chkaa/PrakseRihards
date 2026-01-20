@@ -2,40 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add Task</title>
+  <title>New Task</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="form">
-    <h2>📝 New Task</h2>
-    <input id="uzd" type="text" placeholder="Task name..." minlength="3">
+    <h2>📝 Create Task</h2>
+    <input id="uzd" type="text" placeholder="Task description..." minlength="3">
+    
     <select id="uzdveids">
       <option value="Personal">Personal</option>
       <option value="School">School</option>
+      <option value="Work">Work</option>
     </select>
+    
     <select id="svarigums">
       <option value="Urgent">Urgent</option>
       <option value="Anytime">Anytime</option>
     </select>
-    <button id="save">Save Task</button>
-    <button onclick="location.href='index.html'" style="background:#444; margin-top:10px;">Back</button>
-    <p id="msg"></p>
+
+    <button id="saveBtn">Save Task</button>
+    <button class="secondary" onclick="location.href='index.html'">Cancel</button>
   </div>
+
   <script type="module">
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
     if (!user) location.href = "login.html";
 
-    document.getElementById("save").addEventListener("click", async () => {
+    document.getElementById("saveBtn").onclick = async () => {
+      const taskName = document.getElementById("uzd").value;
+      if (taskName.length < 3) return alert("Task name too short!");
+
       const { error } = await supabase.from("todolist").insert([{ 
-        uzd: document.getElementById("uzd").value, 
+        uzd: taskName, 
         uzdveids: document.getElementById("uzdveids").value, 
         svarigums: document.getElementById("svarigums").value, 
-        username: user 
+        username: user,
+        pabeigts: false
       }]);
-      if (error) { document.getElementById("msg").innerText = "Error: Did you run the SQL?"; }
-      else { location.href = 'index.html'; }
-    });
+
+      if (!error) location.href = 'index.html';
+      else alert("Error saving task.");
+    };
   </script>
 </body>
 </html>
