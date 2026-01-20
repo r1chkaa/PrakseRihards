@@ -1,62 +1,60 @@
-/* Layout Positioning */
+/* Container for the 3 columns */
 .main-layout {
   display: flex;
-  gap: 20px;
+  justify-content: space-around;
   width: 95vw;
-  height: 80vh;
-  align-items: flex-start;
+  height: 85vh;
+  gap: 20px;
 }
 
-.todo-section { flex: 2; height: 100%; }
-.chart-section { flex: 1.5; height: 100%; }
-.clock-section { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; }
+.todo-section { flex: 2; display: flex; flex-direction: column; }
+.chart-section { flex: 1.5; }
+.clock-section { flex: 1; display: flex; flex-direction: column; align-items: center; }
 
-/* Custom Pulley (Scrollbar) */
-.scroll-wrapper {
-  max-height: 400px;
+/* The Pulley (Custom Scrollbar) */
+.pulley-container {
   overflow-y: auto;
-  margin-top: 15px;
+  max-height: 400px; /* Limits height so scroll appears */
   padding-right: 10px;
 }
 
-.scroll-wrapper::-webkit-scrollbar { width: 10px; }
-.scroll-wrapper::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
-.scroll-wrapper::-webkit-scrollbar-thumb { 
+.pulley-container::-webkit-scrollbar { width: 8px; }
+.pulley-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); }
+.pulley-container::-webkit-scrollbar-thumb { 
   background: #792429; 
   border-radius: 10px; 
-  border: 2px solid rgba(255,255,255,0.2);
 }
 
-/* Clock Styles */
-#digital-clock { font-size: 2em; margin-bottom: 20px; font-weight: bold; }
+/* Analog Clock face */
 .analog-face {
   width: 150px;
   height: 150px;
   border: 4px solid white;
   border-radius: 50%;
   position: relative;
+  background: rgba(255,255,255,0.05);
 }
+
 .hand {
   position: absolute;
   bottom: 50%;
   left: 50%;
   transform-origin: bottom;
   background: white;
-  border-radius: 5px;
 }
-.hour { width: 4px; height: 40px; margin-left: -2px; }
-.min { width: 3px; height: 60px; margin-left: -1.5px; }
-.sec { width: 1px; height: 65px; margin-left: -0.5px; background: red; }
+.hour { width: 4px; height: 35px; margin-left: -2px; }
+.min { width: 3px; height: 55px; margin-left: -1.5px; }
+.sec { width: 1px; height: 60px; margin-left: -0.5px; background: red; }
 
-/* Modal Styles */
+/* Modal Background Darkener */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.85); /* Dark background */
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 }
-.modal { background: white; color: black; padding: 20px; border-radius: 15px; text-align: center; }
+
+.modal { background: white; color: black; padding: 25px; border-radius: 12px; }
 .secondary { background: #444 !important; }
