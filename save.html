@@ -2,18 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>New Task</title>
+  <title>Add Task</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="form">
-    <h2>📝 Create Task</h2>
-    <input id="uzd" type="text" placeholder="Task description..." minlength="3">
+    <h2>📝 New Task</h2>
+    <input id="uzd" type="text" placeholder="Task name..." minlength="3">
     
     <select id="uzdveids">
       <option value="Personal">Personal</option>
       <option value="School">School</option>
-      <option value="Work">Work</option>
     </select>
     
     <select id="svarigums">
@@ -22,7 +21,8 @@
     </select>
 
     <button id="saveBtn">Save Task</button>
-    <button class="secondary" onclick="location.href='index.html'">Cancel</button>
+    <button onclick="location.href='index.html'" class="secondary">Back</button>
+    <p id="msg"></p>
   </div>
 
   <script type="module">
@@ -32,18 +32,25 @@
 
     document.getElementById("saveBtn").onclick = async () => {
       const taskName = document.getElementById("uzd").value;
-      if (taskName.length < 3) return alert("Task name too short!");
+      
+      if (taskName.length < 3) {
+        document.getElementById("msg").innerText = "Task name too short!";
+        return;
+      }
 
       const { error } = await supabase.from("todolist").insert([{ 
         uzd: taskName, 
         uzdveids: document.getElementById("uzdveids").value, 
         svarigums: document.getElementById("svarigums").value, 
         username: user,
-        pabeigts: false
+        pabeigts: false // Ensures the task starts as not done
       }]);
 
-      if (!error) location.href = 'index.html';
-      else alert("Error saving task.");
+      if (error) {
+        document.getElementById("msg").innerText = "Error: " + error.message;
+      } else {
+        location.href = 'index.html';
+      }
     };
   </script>
 </body>
