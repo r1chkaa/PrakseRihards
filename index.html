@@ -2,27 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My Tasks</title>
+  <title>My Productivity Hub</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h2 id="welcome">My Tasks</h2>
-    <table id="taskTable">
-      <thead>
-        <tr><th>Task</th><th>Priority</th><th>Done</th><th>Action</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button onclick="location.href='save.html'">+ Add New Task</button>
-    <button class="secondary" onclick="localStorage.clear(); location.href='login.html'">Logout</button>
+  <div class="main-layout">
+    <div class="container todo-section">
+      <h2>My Tasks</h2>
+      <div class="scroll-wrapper">
+        <table id="list">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Priority</th>
+              <th>Done</th>
+              <th>Created</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <button onclick="location.href='save.html'" style="margin-top:20px;">+ Add Task</button>
+      <button onclick="localStorage.clear(); location.href='login.html';" class="secondary">Logout</button>
+    </div>
+
+    <div class="container chart-section">
+      <h3>Priority Overview</h3>
+      <canvas id="priorityChart"></canvas>
+    </div>
+
+    <div class="container clock-section">
+      <div id="digital-clock"></div>
+      <div class="analog-face">
+        <div class="hand hour" id="hour-hand"></div>
+        <div class="hand min" id="min-hand"></div>
+        <div class="hand sec" id="sec-hand"></div>
+      </div>
+    </div>
   </div>
 
   <div id="deleteModal" class="modal-overlay">
     <div class="modal">
-      <h3>Are you sure?</h3>
-      <p>This action cannot be undone.</p>
-      <button id="confirmDelete" style="background: red;">Delete</button>
+      <h3>Delete Task?</h3>
+      <button id="confirmBtn" style="background: red;">Delete</button>
       <button onclick="closeModal()" class="secondary">Cancel</button>
     </div>
   </div>
@@ -31,52 +55,107 @@
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
     if (!user) location.href = "login.html";
-    
-    let taskToDelete = null;
 
-    async function loadTasks() {
+    let taskToDeleteId = null;
+    let myChart = null;
+
+    // Time Ago Calculator
+    function timeAgo(date) {
+      const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+      let interval = seconds / 31536000;
+      if (interval > 1) return Math.floor(interval) + "y ago";
+      interval = seconds / 2592000;
+      if (interval > 1) return Math.floor(interval) + "m ago";
+      interval = seconds / 604800;
+      if (interval > 1) return Math.floor(interval) + "w ago";
+      interval = seconds / 86400;
+      if (interval > 1) return Math.floor(interval) + "d ago";
+      interval = seconds / 3600;
+      if (interval > 1) return Math.floor(interval) + "h ago";
+      interval = seconds / 60;
+      if (interval > 1) return Math.floor(interval) + "min ago";
+      return "now";
+    }
+
+    async function load() {
       const { data } = await supabase.from('todolist').select('*').eq('username', user);
-      const tbody = document.querySelector("#taskTable tbody");
+      const tbody = document.querySelector("#list tbody");
       tbody.innerHTML = "";
+      
+      const counts = { Urgent: 0, Anytime: 0, "This week": 0, "This month": 0 };
 
-      data?.forEach(task => {
+      data?.forEach(t => {
+        if (counts[t.svarigums] !== undefined) counts[t.svarigums]++;
+        
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${task.uzd}</td>
-          <td>${task.svarigums}</td>
-          <td><input type="checkbox" ${task.pabeigts ? 'checked' : ''}></td>
-          <td><button class="delete-btn" style="width:auto; padding:5px 10px; background:red;">✖</button></td>
+          <td>${t.uzd}</td>
+          <td>${t.svarigums}</td>
+          <td><input type="checkbox" ${t.pabeigts ? 'checked' : ''} onchange="updateStatus('${t.id}', this.checked)"></td>
+          <td style="font-size: 0.8em; opacity: 0.7;">${timeAgo(t.created_at)}</td>
+          <td><button class="del-trigger" style="width:auto; padding:5px 10px; background:red;">✖</button></td>
         `;
 
-        // Handle Checkbox
-        const cb = tr.querySelector("input");
-        cb.onchange = async () => await supabase.from("todolist").update({ pabeigts: cb.checked }).eq("id", task.id);
-
-        // Handle Delete Trigger
-        tr.querySelector(".delete-btn").onclick = () => {
-          taskToDelete = task.id;
+        tr.querySelector(".del-trigger").onclick = () => {
+          taskToDeleteId = t.id;
           document.getElementById("deleteModal").style.display = "flex";
         };
-
         tbody.appendChild(tr);
+      });
+
+      updateChart(counts);
+    }
+
+    window.updateStatus = async (id, status) => {
+      await supabase.from("todolist").update({ pabeigts: status }).eq("id", id);
+    };
+
+    function updateChart(counts) {
+      const ctx = document.getElementById('priorityChart').getContext('2d');
+      if (myChart) myChart.destroy();
+      myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Urgent', 'This week', 'This month', 'Anytime'],
+          datasets: [{
+            label: 'Tasks',
+            data: [counts.Urgent, counts["This week"], counts["This month"], counts.Anytime],
+            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+            borderColor: 'white',
+            borderWidth: 1
+          }]
+        },
+        options: { 
+          scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
+          plugins: { legend: { display: false } }
+        }
       });
     }
 
-    // Modal Confirmation Logic
-    document.getElementById("confirmDelete").onclick = async () => {
-      if (taskToDelete) {
-        await supabase.from("todolist").delete().eq("id", taskToDelete);
-        closeModal();
-        loadTasks();
-      }
-    };
+    // Real-Time Clock Logic
+    function clock() {
+      const now = new Date();
+      document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
+      
+      const s = now.getSeconds() * 6;
+      const m = now.getMinutes() * 6;
+      const h = (now.getHours() % 12) * 30 + m / 12;
 
-    window.closeModal = () => {
+      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
+      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
+      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
+    }
+
+    document.getElementById("confirmBtn").onclick = async () => {
+      await supabase.from("todolist").delete().eq("id", taskToDeleteId);
       document.getElementById("deleteModal").style.display = "none";
-      taskToDelete = null;
+      load();
     };
 
-    loadTasks();
+    window.closeModal = () => document.getElementById("deleteModal").style.display = "none";
+
+    setInterval(clock, 1000);
+    load();
   </script>
 </body>
 </html>
