@@ -12,7 +12,7 @@
 <body>
 
   <div class="grid-stack">
-    <div class="grid-stack-item" gs-id="todo" gs-x="0" gs-y="0" gs-w="18" gs-h="35">
+    <div class="grid-stack-item" gs-id="todo" gs-x="0" gs-y="0" gs-w="30" gs-h="70">
       <div class="grid-stack-item-content container todo-section">
         <h2 class="drag-handle">My Tasks</h2>
         <div class="pulley-container">
@@ -34,7 +34,7 @@
       </div>
     </div>
 
-    <div class="grid-stack-item" gs-id="chart" gs-x="18" gs-y="0" gs-w="18" gs-h="25">
+    <div class="grid-stack-item" gs-id="chart" gs-x="30" gs-y="0" gs-w="40" gs-h="50">
       <div class="grid-stack-item-content container chart-section">
         <h3 class="drag-handle">Priority Stats</h3>
         <div class="chart-wrapper">
@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <div class="grid-stack-item" gs-id="clock" gs-x="36" gs-y="0" gs-w="14" gs-h="25">
+    <div class="grid-stack-item" gs-id="clock" gs-x="70" gs-y="0" gs-w="25" gs-h="50">
       <div class="grid-stack-item-content container clock-section">
         <h3 class="drag-handle">Clock</h3>
         <div id="digital-clock">00:00:00</div>
@@ -63,39 +63,37 @@
 
     let myChart = null;
 
-    // 1. Initialize High-Density GridStack
+    // 1. Initialize ULTRA-HIGH Density GridStack for "Free" Movement
     const grid = GridStack.init({
-      column: 50,
-      cellHeight: 10,
+      column: 100,           // 100 columns = tiny squares
+      cellHeight: 5,        // 5px height = fluid vertical movement
       margin: 10,
       handle: '.drag-handle',
       float: true,
       resizable: { handles: 'se', autoHide: false }
     });
 
-    // 2. Load Layout and Data
     async function initialize() {
       try {
         const { data: userData } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
         
-        // Critical: Only load if the saved layout matches the current 50-column density
-        if (userData?.dashboard_layout && userData.dashboard_layout.column === 50) {
+        // AUTO-FIX: If the saved layout is from an old density, ignore it once
+        if (userData?.dashboard_layout && userData.dashboard_layout.column === 100) {
           grid.load(userData.dashboard_layout);
         } else {
-          console.log("Old layout detected or first run. Using defaults.");
+          console.log("Resetting to Free-Move Defaults...");
+          // This ensures your squished windows are forced into their new default positions
         }
-      } catch (err) { console.log("Default layout used."); }
+      } catch (err) { console.log("Defaulting layout."); }
       
       await loadData();
       document.querySelector('.grid-stack').style.opacity = "1";
     }
 
-    // 3. Save Layout & Update Chart on Resize
     grid.on('dragstop resizestop', async (event, el) => {
       const layout = grid.save();
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
-      
-      if (myChart) myChart.resize();
+      if (myChart) myChart.resize(); // Fix chart instantly on resize
     });
 
     async function loadData() {
