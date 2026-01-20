@@ -15,30 +15,17 @@
   </div>
 
   <div id="dashboard-canvas">
-    <div id="win-tasks" class="window" style="top:40px; left:40px; width:320px; height:450px;">
+    <div id="win-tasks" class="window" style="top:40px; left:40px; width:320px; height:400px;">
       <div class="window-header"><span>ALL TASKS</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
       <div class="window-content">
-<select id="task-filter" onchange="loadTasks()" style="color: black; background: #ffcccc; margin-bottom: 10px; padding: 5px; border-radius: 5px; width: 100%; border: 1px solid rgba(0,0,0,0.1);">
-  <option value="All" style="color: black; background: #fff0f0;">All Categories</option>
-  <option value="Personal" style="color: black; background: #fff0f0;">Personal</option>
-  <option value="Work" style="color: black; background: #fff0f0;">Work</option>
-  <option value="School" style="color: black; background: #fff0f0;">School</option>
-  <option value="Event" style="color: black; background: #fff0f0;">Event</option>
-  <option value="Holidays" style="color: black; background: #fff0f0;">Holidays</option>
-  <option value="Home" style="color: black; background: #fff0f0;">Home</option>
-  <option value="Shopping" style="color: black; background: #fff0f0;">Shopping</option>
-</select>
-
         <div style="flex:1; overflow-y:auto;"><table id="list-all"><tbody></tbody></table></div>
-        <button onclick="location.href='save.html'" style="margin-top:10px;">+ Add Task</button>
+        <button onclick="location.href='save.html'">+ Add Task</button>
       </div>
-      <div class="resize-handle"></div>
     </div>
 
     <div id="win-stats" class="window" style="top:40px; left:380px; width:380px; height:300px;">
       <div class="window-header"><span>STATS</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
       <div class="window-content"><canvas id="priorityChart"></canvas></div>
-      <div class="resize-handle"></div>
     </div>
 
     <div id="win-clock" class="window" style="top:360px; left:380px; width:240px; height:250px;">
@@ -51,7 +38,6 @@
           <div class="hand sec" id="sec-hand"></div>
         </div>
       </div>
-      <div class="resize-handle"></div>
     </div>
 
     <div id="win-quotes" class="window" style="top:630px; left:380px; width:640px; height:140px;">
@@ -60,13 +46,12 @@
         <div id="quote-display">Loading...</div>
         <div id="author-display" style="font-weight:bold; color:#ff4d4d; margin-top:5px;"></div>
       </div>
-      <div class="resize-handle"></div>
     </div>
 
-    <div id="win-urgent" class="window category-win" style="top:40px; left:780px; width:240px; height:280px;"><div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-urgent"><tbody></tbody></table></div></div><div class="resize-handle"></div></div>
-    <div id="win-week" class="window category-win" style="top:340px; left:780px; width:240px; height:280px;"><div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-week"><tbody></tbody></table></div></div><div class="resize-handle"></div></div>
-    <div id="win-month" class="window category-win" style="top:40px; left:1040px; width:240px; height:280px;"><div class="window-header"><span>🌙 MONTHLY</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-month"><tbody></tbody></table></div></div><div class="resize-handle"></div></div>
-    <div id="win-anytime" class="window category-win" style="top:340px; left:1040px; width:240px; height:280px;"><div class="window-header"><span>☕ ANYTIME</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-anytime"><tbody></tbody></table></div></div><div class="resize-handle"></div></div>
+    <div id="win-urgent" class="window category-win" style="top:40px; left:780px; width:240px; height:280px;"><div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-urgent"><tbody></tbody></table></div></div></div>
+    <div id="win-week" class="window category-win" style="top:340px; left:780px; width:240px; height:280px;"><div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-week"><tbody></tbody></table></div></div></div>
+    <div id="win-month" class="window category-win" style="top:40px; left:1040px; width:240px; height:280px;"><div class="window-header"><span>🌙 MONTHLY</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-month"><tbody></tbody></table></div></div></div>
+    <div id="win-anytime" class="window category-win" style="top:340px; left:1040px; width:240px; height:280px;"><div class="window-header"><span>☕ ANYTIME</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-anytime"><tbody></tbody></table></div></div></div>
   </div>
 
   <script type="module">
@@ -95,9 +80,8 @@
         authorDisplay.innerText = author;
     }
 
-    // --- RESIZE & DRAG ENGINE ---
-    let activeWin = null, isDragging = false, isResizing = false;
-    let startX, startY, startW, startH, startL, startT;
+    let activeWin = null, isDragging = false;
+    let startX, startY, startL, startT;
 
     document.addEventListener('mousedown', e => {
       const win = e.target.closest('.window');
@@ -107,31 +91,23 @@
       win.style.zIndex = 10;
       startX = e.clientX; startY = e.clientY;
       startL = win.offsetLeft; startT = win.offsetTop;
-      startW = win.offsetWidth; startH = win.offsetHeight;
-      if (e.target.classList.contains('resize-handle')) isResizing = true;
-      else if (e.target.closest('.window-header')) isDragging = true;
-      else activeWin = null;
+      if (e.target.closest('.window-header')) isDragging = true;
     });
 
     window.addEventListener('mousemove', e => {
-      if (!activeWin) return;
-      if (isResizing) {
-        activeWin.style.width = Math.max(200, startW + (e.clientX - startX)) + 'px';
-        activeWin.style.height = Math.max(120, startH + (e.clientY - startY)) + 'px';
-      } else if (isDragging) {
+      if (isDragging && activeWin) {
         activeWin.style.left = (startL + (e.clientX - startX)) + 'px';
         activeWin.style.top = (startT + (e.clientY - startY)) + 'px';
       }
     });
 
-    window.addEventListener('mouseup', () => { if(activeWin) saveLayout(); activeWin = null; isDragging = false; isResizing = false; });
+    window.addEventListener('mouseup', () => { if(activeWin) saveLayout(); isDragging = false; activeWin = null; });
 
-    // --- FUNCTIONS ---
     window.closeWin = (id) => { document.getElementById(id).style.display = 'none'; saveLayout(); };
     window.toggleManager = () => {
       const m = document.getElementById('win-manager');
       m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-      m.innerHTML = '<b style="font-size:0.7rem;">Windows</b>';
+      m.innerHTML = '<b>Windows</b>';
       document.querySelectorAll('.window').forEach(w => {
         const btn = document.createElement('button');
         btn.className = 'win-toggle';
@@ -145,34 +121,20 @@
     async function saveLayout() {
       const layout = {};
       document.querySelectorAll('.window').forEach(w => {
-        layout[w.id] = { top: w.style.top, left: w.style.left, width: w.style.width, height: w.style.height, display: w.style.display };
+        layout[w.id] = { top: w.style.top, left: w.style.left, display: w.style.display };
       });
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
     }
 
-    // --- UPDATED LOAD TASKS WITH FILTER ---
-    window.loadTasks = async function() {
-      const filterValue = document.getElementById('task-filter').value;
+    async function loadTasks() {
       const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
-      
       const ids = { 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
       document.querySelectorAll('table tbody').forEach(b => b.innerHTML = "");
-      
       let counts = { Urgent:0, "This week":0, "This month":0, Anytime:0 };
-      
       data?.forEach(t => {
         const row = `<tr><td><b>${t.uzd}</b><span class="time-text">${timeAgo(t.created_at)}</span></td><td style="text-align:right"><button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer;">✖</button></td></tr>`;
-        
-        // Apply filter to "All Tasks" window
-        if (filterValue === "All" || t.uzdveids === filterValue) {
-            document.querySelector("#list-all tbody").innerHTML += row;
-        }
-
-        // Keep category windows functioning as normal
-        if(ids[t.svarigums]) { 
-            document.querySelector(ids[t.svarigums] + " tbody").innerHTML += row; 
-            counts[t.svarigums]++; 
-        }
+        document.querySelector("#list-all tbody").innerHTML += row;
+        if(ids[t.svarigums]) { document.querySelector(ids[t.svarigums] + " tbody").innerHTML += row; counts[t.svarigums]++; }
       });
       updateChart(counts);
     }
