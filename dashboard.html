@@ -21,11 +21,13 @@
         <div style="flex:1; overflow-y:auto;"><table id="list-all"><tbody></tbody></table></div>
         <button onclick="location.href='save.html'">+ Add Task</button>
       </div>
+      <div class="resize-handle"></div>
     </div>
 
     <div id="win-stats" class="window" style="top:40px; left:380px; width:380px; height:300px;">
       <div class="window-header"><span>STATS</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
       <div class="window-content"><canvas id="priorityChart"></canvas></div>
+      <div class="resize-handle"></div>
     </div>
 
     <div id="win-clock" class="window" style="top:360px; left:380px; width:240px; height:250px;">
@@ -38,6 +40,7 @@
           <div class="hand sec" id="sec-hand"></div>
         </div>
       </div>
+      <div class="resize-handle"></div>
     </div>
 
     <div id="win-quotes" class="window" style="top:630px; left:380px; width:640px; height:140px;">
@@ -46,12 +49,13 @@
         <div id="quote-display">Loading...</div>
         <div id="author-display" style="font-weight:bold; color:#ff4d4d; margin-top:5px;"></div>
       </div>
+      <div class="resize-handle"></div>
     </div>
 
-    <div id="win-urgent" class="window category-win" style="top:40px; left:780px; width:240px; height:280px;"><div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-urgent"><tbody></tbody></table></div></div></div>
-    <div id="win-week" class="window category-win" style="top:340px; left:780px; width:240px; height:280px;"><div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-week"><tbody></tbody></table></div></div></div>
-    <div id="win-month" class="window category-win" style="top:40px; left:1040px; width:240px; height:280px;"><div class="window-header"><span>🌙 MONTHLY</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-month"><tbody></tbody></table></div></div></div>
-    <div id="win-anytime" class="window category-win" style="top:340px; left:1040px; width:240px; height:280px;"><div class="window-header"><span>☕ ANYTIME</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-anytime"><tbody></tbody></table></div></div></div>
+    <div id="win-urgent" class="window category-win" style="top:40px; left:780px; width:240px; height:280px;"><div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-urgent"><tbody></tbody></table></div></div><div class="resize-handle"></div></div>
+    <div id="win-week" class="window category-win" style="top:340px; left:780px; width:240px; height:280px;"><div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-week"><tbody></tbody></table></div></div><div class="resize-handle"></div></div>
+    <div id="win-month" class="window category-win" style="top:40px; left:1040px; width:240px; height:280px;"><div class="window-header"><span>🌙 MONTHLY</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-month"><tbody></tbody></table></div></div><div class="resize-handle"></div></div>
+    <div id="win-anytime" class="window category-win" style="top:340px; left:1040px; width:240px; height:280px;"><div class="window-header"><span>☕ ANYTIME</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div><div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-anytime"><tbody></tbody></table></div></div><div class="resize-handle"></div></div>
   </div>
 
   <script type="module">
@@ -60,6 +64,113 @@
     if(!user) location.href = "login.html";
 
     const quotes = ["Helen Keller — “The only thing worse than being blind is having sight but no vision.”", "Henry David Thoreau — “Go confidently in the direction of your dreams.”", "Zig Ziglar — “You don’t have to be great to start.”", "George Orwell — “In a time of deceit telling the truth is a revolutionary act.”", "Napoleon Hill — “Whatever the mind can conceive and believe, it can achieve.”", "Anthony Bourdain — “Your body is not a temple, it’s an amusement park.”", "Edith Wharton — “There are two ways of spreading light.”", "Virginia Woolf — “A woman must have money and a room of her own.”", "F. Scott Fitzgerald — “So we beat on, boats against the current.”", "Mary Shelley — “Beware; for I am fearless.”", "Anaïs Nin — “We see things not as they are, but as we are.”", "Neil Gaiman — “Make good art.”", "J. D. Vance — “There is no shortcut to a meaningful life.”", "H. Jackson Brown Jr. — “Never deprive someone of hope.”", "Bryant H. McGill — “One of the most sincere forms of respect is listening.”", "Brian Tracy — “Goals allow you to control the direction of change.”", "Christopher Hitchens — “What can be asserted without evidence can be dismissed.”", "Stephen King — “Get busy living or get busy dying.”", "Henry Miller — “The aim of life is to live.”", "Joseph Campbell — “Follow your bliss.”", "Brené Brown — “Vulnerability is the birthplace of innovation.”", "Frederick Douglass — “If there is no struggle, there is no progress.”", "Marcel Proust — “The real voyage of discovery consists not in seeking new lands.”", "Joyce Meyer — “You cannot have a positive life with a negative mind.”", "Aleksandr Solzhenitsyn — “The line dividing good and evil cuts through the heart.”", "Thomas Merton — “Happiness is not a matter of intensity but balance.”", "Victor Hugo — “Even the darkest night will end.”", "Gertrude Stein — “Everybody gets so much information all day long.”", "George Eliot — “It is never too late to be what you might have been.”", "Aesop — “No act of kindness is ever wasted.”", "Terry Pratchett — “Stories of imagination tend to upset those without one.”", "H. G. Wells — “If you fell down yesterday, stand up today.”", "Corrie Ten Boom — “Worry does not empty tomorrow of sorrow.”", "Marianne Williamson — “Our deepest fear is not that we are inadequate.”", "Lewis Carroll — “If you don’t know where you are going, any road will do.”", "Robert Kiyosaki — “It’s not how much money you make.”", "John Steinbeck — “And now that you don’t have to be perfect.”", "John Burroughs — “Leap and the net will appear.”", "Ken Kesey — “You don’t lead by pointing and telling.”", "Simon Sinek — “People don’t buy what you do.”", "Tom Robbins — “Seriousness is the only refuge of the shallow.”", "Og Mandino — “I will persist until I succeed.”", "Leo Buscaglia — “Change is the end result of all true learning.”", "Charles Bukowski — “Find what you love and let it kill you.”", "Anne Lamott — “Almost everything will work again if you unplug it.”", "Jason Reynolds — “Your story matters.”", "Jane Rule — “Anger is one of the strongest passions.”", "Ben Shapiro — “Facts don’t care about your feelings.”", "Peter Benchley — “Fear is the most powerful emotion.”", "Flannery O’Connor — “You shall know the truth.”", "Hans Christian Andersen — “Life itself is the most wonderful fairy tale.”", "John Trudell — “We are here to learn.”", "A. A. Milne — “You are braver than you believe.”", "Sandra Cisneros — “I write for the ones who don’t speak.”", "Alice Walker — “The most common way people give up power.”", "Sarah Fielding — “Friendship is the strongest bond.”", "James Thurber — “Let us not look back in anger.”", "Pete Hegseth — “Strength is built through challenge.”", "Anh Do — “Never give up on your dreams.”", "Martha Beck — “Integrity is the cure for unhappiness.”"];
+
+    // --- RESIZE & DRAG ENGINE ---
+    let activeWin = null, isDragging = false, isResizing = false;
+    let startX, startY, startW, startH, startL, startT;
+
+    document.addEventListener('mousedown', e => {
+      const win = e.target.closest('.window');
+      if (!win || e.target.classList.contains('close-btn')) return;
+      
+      activeWin = win;
+      document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
+      win.style.zIndex = 10;
+      
+      startX = e.clientX; startY = e.clientY;
+      startL = win.offsetLeft; startT = win.offsetTop;
+      startW = win.offsetWidth; startH = win.offsetHeight;
+
+      if (e.target.classList.contains('resize-handle')) {
+        isResizing = true;
+      } else if (e.target.closest('.window-header')) {
+        isDragging = true;
+      } else {
+        activeWin = null;
+      }
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (!activeWin) return;
+      if (isResizing) {
+        activeWin.style.width = Math.max(200, startW + (e.clientX - startX)) + 'px';
+        activeWin.style.height = Math.max(120, startH + (e.clientY - startY)) + 'px';
+      } else if (isDragging) {
+        activeWin.style.left = (startL + (e.clientX - startX)) + 'px';
+        activeWin.style.top = (startT + (e.clientY - startY)) + 'px';
+      }
+    });
+
+    window.addEventListener('mouseup', () => { if(activeWin) saveLayout(); activeWin = null; isDragging = false; isResizing = false; });
+
+    // --- DASHBOARD FUNCTIONS ---
+    window.closeWin = (id) => { document.getElementById(id).style.display = 'none'; saveLayout(); };
+    window.toggleManager = () => {
+      const m = document.getElementById('win-manager');
+      m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+      m.innerHTML = '<b>Windows</b>';
+      document.querySelectorAll('.window').forEach(w => {
+        const btn = document.createElement('button');
+        btn.className = 'win-toggle';
+        btn.innerText = (w.style.display === 'none' ? 'Show ' : 'Hide ') + w.querySelector('span').innerText;
+        btn.onclick = () => { w.style.display = (w.style.display === 'none' ? 'flex' : 'none'); toggleManager(); saveLayout(); };
+        m.appendChild(btn);
+      });
+    };
+    window.resetLayout = async () => { await supabase.from('users').update({ dashboard_layout: null }).eq('username', user); location.reload(); };
+
+    async function saveLayout() {
+      const layout = {};
+      document.querySelectorAll('.window').forEach(w => {
+        layout[w.id] = { 
+          top: w.style.top, 
+          left: w.style.left, 
+          width: w.style.width, 
+          height: w.style.height, 
+          display: w.style.display 
+        };
+      });
+      await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
+    }
+
+    // --- DATA LOADING ---
+    async function loadTasks() {
+      const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
+      const ids = { 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
+      document.querySelectorAll('table tbody').forEach(b => b.innerHTML = "");
+      let counts = { Urgent:0, "This week":0, "This month":0, Anytime:0 };
+      data?.forEach(t => {
+        const row = `<tr><td><b>${t.uzd}</b><span class="time-text">${timeAgo(t.created_at)}</span></td><td style="text-align:right"><button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer;">✖</button></td></tr>`;
+        document.querySelector("#list-all tbody").innerHTML += row;
+        if(ids[t.svarigums]) { document.querySelector(ids[t.svarigums] + " tbody").innerHTML += row; counts[t.svarigums]++; }
+      });
+      updateChart(counts);
+    }
+
+    window.delTask = async (id) => { await supabase.from('todolist').delete().eq('id', id); loadTasks(); };
+
+    // --- HELPERS ---
+    function timeAgo(d) {
+      const s = Math.floor((new Date() - new Date(d)) / 1000);
+      return s < 60 ? "now" : s < 3600 ? Math.floor(s/60) + "m ago" : s < 86400 ? Math.floor(s/3600) + "h ago" : Math.floor(s/86400) + "d ago";
+    }
+
+    function updateChart(counts) {
+      const ctx = document.getElementById('priorityChart');
+      if (window.myChart) window.myChart.destroy();
+      window.myChart = new Chart(ctx, {
+        type: 'bar', data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#a53239', borderColor: 'white', borderWidth: 1 }] },
+        options: { maintainAspectRatio: false, scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } }, plugins: { legend: { display: false } } }
+      });
+    }
+
+    function runClock() {
+      const n = new Date(); document.getElementById('digital-clock').innerText = n.toLocaleTimeString();
+      const s = n.getSeconds()*6, m = n.getMinutes()*6, h = (n.getHours()%12)*30 + (m/12);
+      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
+      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
+      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
+    }
 
     function handleQuotes() {
         const display = document.getElementById('quote-display');
@@ -80,95 +191,19 @@
         authorDisplay.innerText = author;
     }
 
-    let activeWin = null, isDragging = false;
-    let startX, startY, startL, startT;
-
-    document.addEventListener('mousedown', e => {
-      const win = e.target.closest('.window');
-      if (!win || e.target.classList.contains('close-btn')) return;
-      activeWin = win;
-      document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
-      win.style.zIndex = 10;
-      startX = e.clientX; startY = e.clientY;
-      startL = win.offsetLeft; startT = win.offsetTop;
-      if (e.target.closest('.window-header')) isDragging = true;
-    });
-
-    window.addEventListener('mousemove', e => {
-      if (isDragging && activeWin) {
-        activeWin.style.left = (startL + (e.clientX - startX)) + 'px';
-        activeWin.style.top = (startT + (e.clientY - startY)) + 'px';
-      }
-    });
-
-    window.addEventListener('mouseup', () => { if(activeWin) saveLayout(); isDragging = false; activeWin = null; });
-
-    window.closeWin = (id) => { document.getElementById(id).style.display = 'none'; saveLayout(); };
-    window.toggleManager = () => {
-      const m = document.getElementById('win-manager');
-      m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-      m.innerHTML = '<b>Windows</b>';
-      document.querySelectorAll('.window').forEach(w => {
-        const btn = document.createElement('button');
-        btn.className = 'win-toggle';
-        btn.innerText = (w.style.display === 'none' ? 'Show ' : 'Hide ') + w.querySelector('span').innerText;
-        btn.onclick = () => { w.style.display = (w.style.display === 'none' ? 'flex' : 'none'); toggleManager(); saveLayout(); };
-        m.appendChild(btn);
-      });
-    };
-    window.resetLayout = async () => { await supabase.from('users').update({ dashboard_layout: null }).eq('username', user); location.reload(); };
-
-    async function saveLayout() {
-      const layout = {};
-      document.querySelectorAll('.window').forEach(w => {
-        layout[w.id] = { top: w.style.top, left: w.style.left, display: w.style.display };
-      });
-      await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
-    }
-
-    async function loadTasks() {
-      const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
-      const ids = { 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
-      document.querySelectorAll('table tbody').forEach(b => b.innerHTML = "");
-      let counts = { Urgent:0, "This week":0, "This month":0, Anytime:0 };
-      data?.forEach(t => {
-        const row = `<tr><td><b>${t.uzd}</b><span class="time-text">${timeAgo(t.created_at)}</span></td><td style="text-align:right"><button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer;">✖</button></td></tr>`;
-        document.querySelector("#list-all tbody").innerHTML += row;
-        if(ids[t.svarigums]) { document.querySelector(ids[t.svarigums] + " tbody").innerHTML += row; counts[t.svarigums]++; }
-      });
-      updateChart(counts);
-    }
-
-    function timeAgo(d) {
-      const s = Math.floor((new Date() - new Date(d)) / 1000);
-      return s < 60 ? "now" : s < 3600 ? Math.floor(s/60) + "m ago" : s < 86400 ? Math.floor(s/3600) + "h ago" : Math.floor(s/86400) + "d ago";
-    }
-
-    window.delTask = async (id) => { await supabase.from('todolist').delete().eq('id', id); loadTasks(); };
-
-    function updateChart(counts) {
-      const ctx = document.getElementById('priorityChart');
-      if (window.myChart) window.myChart.destroy();
-      window.myChart = new Chart(ctx, {
-        type: 'bar', data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#a53239', borderColor: 'white', borderWidth: 1 }] },
-        options: { maintainAspectRatio: false, scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } }, plugins: { legend: { display: false } } }
-      });
-    }
-
-    function runClock() {
-      const n = new Date(); document.getElementById('digital-clock').innerText = n.toLocaleTimeString();
-      const s = n.getSeconds()*6, m = n.getMinutes()*6, h = (n.getHours()%12)*30 + (m/12);
-      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
-      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
-      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
-    }
-
     async function init() {
       const { data } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
       if (data?.dashboard_layout) {
         Object.keys(data.dashboard_layout).forEach(id => {
           const w = document.getElementById(id);
-          if (w) Object.assign(w.style, data.dashboard_layout[id]);
+          if (w) {
+            const saved = data.dashboard_layout[id];
+            w.style.top = saved.top;
+            w.style.left = saved.left;
+            if(saved.width) w.style.width = saved.width;
+            if(saved.height) w.style.height = saved.height;
+            w.style.display = saved.display;
+          }
         });
       }
       loadTasks(); handleQuotes(); setInterval(runClock, 1000); runClock();
