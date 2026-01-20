@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Collision Dashboard</title>
+  <title>Task Master Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -11,25 +11,25 @@
   <button class="reset-btn" onclick="resetLayout()">↺ Reset Workspace</button>
 
   <div id="dashboard-canvas">
-    <div id="win-tasks" class="window" style="top: 50px; left: 50px; width: 300px; height: 400px;">
-      <div class="window-header">Tasks</div>
+    <div id="win-tasks" class="window" style="top: 20px; left: 20px; width: 300px; height: 350px;">
+      <div class="window-header">All Tasks</div>
       <div class="window-content">
-        <div class="scroll-area"><table id="task-list"><tbody></tbody></table></div>
-        <button onclick="location.href='save.html'" style="margin-top:10px;">+ Add</button>
+        <div class="scroll-area"><table id="list-all"><tbody></tbody></table></div>
+        <button onclick="location.href='save.html'" style="margin-top:10px;">+ Add New</button>
       </div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-stats" class="window" style="top: 50px; left: 400px; width: 400px; height: 300px;">
+    <div id="win-stats" class="window" style="top: 20px; left: 340px; width: 350px; height: 250px;">
       <div class="window-header">Stats</div>
       <div class="window-content"><canvas id="priorityChart"></canvas></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-clock" class="window" style="top: 400px; left: 400px; width: 220px; height: 280px;">
+    <div id="win-clock" class="window" style="top: 20px; left: 710px; width: 220px; height: 250px;">
       <div class="window-header">Clock</div>
       <div class="window-content">
-        <div id="digital-clock" style="text-align:center; font-weight:bold;">00:00</div>
+        <div id="digital-clock" style="text-align:center; margin-bottom:5px;">00:00</div>
         <div class="analog-face" id="face">
           <div class="hand hour" id="hour-hand"></div>
           <div class="hand min" id="min-hand"></div>
@@ -38,13 +38,37 @@
       </div>
       <div class="resize-handle"></div>
     </div>
+
+    <div id="win-urgent" class="window category-win" style="top: 380px; left: 20px; width: 230px; height: 250px;">
+      <div class="window-header">🚨 Urgent</div>
+      <div class="window-content"><div class="scroll-area"><table id="list-urgent"><tbody></tbody></table></div></div>
+      <div class="resize-handle"></div>
+    </div>
+
+    <div id="win-week" class="window category-win" style="top: 380px; left: 260px; width: 230px; height: 250px;">
+      <div class="window-header">📅 This Week</div>
+      <div class="window-content"><div class="scroll-area"><table id="list-week"><tbody></tbody></table></div></div>
+      <div class="resize-handle"></div>
+    </div>
+
+    <div id="win-month" class="window category-win" style="top: 380px; left: 500px; width: 230px; height: 250px;">
+      <div class="window-header">🌙 This Month</div>
+      <div class="window-content"><div class="scroll-area"><table id="list-month"><tbody></tbody></table></div></div>
+      <div class="resize-handle"></div>
+    </div>
+
+    <div id="win-anytime" class="window category-win" style="top: 380px; left: 740px; width: 230px; height: 250px;">
+      <div class="window-header">☕ Anytime</div>
+      <div class="window-content"><div class="scroll-area"><table id="list-anytime"><tbody></tbody></table></div></div>
+      <div class="resize-handle"></div>
+    </div>
   </div>
 
   <script type="module">
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
 
-    // Generate Clock Numbers 1-12
+    // Clock Number Generation
     const face = document.getElementById('face');
     for(let i=1; i<=12; i++) {
       let n = document.createElement('div');
@@ -54,10 +78,10 @@
       face.appendChild(n);
     }
 
+    // --- COLLISION MOVE ENGINE ---
     let activeWin = null, isResizing = false;
     let offset = { x: 0, y: 0 };
 
-    // Check for collisions with other windows
     function isColliding(rect1, id1) {
       const windows = document.querySelectorAll('.window');
       for (let win of windows) {
@@ -75,42 +99,36 @@
       activeWin = win;
       document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
       win.style.zIndex = 10;
-      
       isResizing = e.target.classList.contains('resize-handle');
       offset.x = e.clientX - win.offsetLeft;
       offset.y = e.clientY - win.offsetTop;
-      if (!isResizing && !e.target.classList.contains('window-header')) activeWin = null;
     });
 
     document.addEventListener('mousemove', e => {
       if (!activeWin) return;
-      const canvas = document.getElementById('dashboard-canvas').getBoundingClientRect();
-      let newX = activeWin.offsetLeft;
-      let newY = activeWin.offsetTop;
-      let newW = activeWin.offsetWidth;
-      let newH = activeWin.offsetHeight;
+      let newX = activeWin.offsetLeft, newY = activeWin.offsetTop;
+      let newW = activeWin.offsetWidth, newH = activeWin.offsetHeight;
 
       if (isResizing) {
         newW = e.clientX - activeWin.getBoundingClientRect().left;
         newH = e.clientY - activeWin.getBoundingClientRect().top;
-      } else {
+      } else if (e.target.classList.contains('window-header') || activeWin.contains(e.target)) {
         newX = e.clientX - offset.x;
         newY = e.clientY - offset.y;
-      }
+      } else { return; }
 
-      // Screen Boundary Check (including the 8px border)
-      if (newX < 8) newX = 8;
-      if (newY < 8) newY = 8;
-      if (newX + newW > window.innerWidth - 8) newX = window.innerWidth - newW - 8;
-      if (newY + newH > window.innerHeight - 8) newY = window.innerHeight - newH - 8;
+      // Boundaries
+      if (newX < 0) newX = 0; if (newY < 0) newY = 0;
+      if (newX + newW > window.innerWidth) newX = window.innerWidth - newW;
+      if (newY + newH > window.innerHeight) newY = window.innerHeight - newH;
 
-      // Collision Check (Simple version: allow move, but revert if overlapping)
       const nextRect = { left: newX, top: newY, right: newX + newW, bottom: newY + newH };
       if (!isColliding(nextRect, activeWin.id)) {
         activeWin.style.left = newX + 'px';
         activeWin.style.top = newY + 'px';
         activeWin.style.width = newW + 'px';
         activeWin.style.height = newH + 'px';
+        if(window.myChart && activeWin.id === 'win-stats') window.myChart.resize();
       }
     });
 
@@ -129,7 +147,58 @@
       location.reload();
     };
 
-    // Load Data
+    // --- DATA LOADING ---
+    async function loadTasks() {
+      const { data } = await supabase.from('todolist').select('*').eq('username', user);
+      const tables = {
+        'all': document.querySelector("#list-all tbody"),
+        'Urgent': document.querySelector("#list-urgent tbody"),
+        'This week': document.querySelector("#list-week tbody"),
+        'This month': document.querySelector("#list-month tbody"),
+        'Anytime': document.querySelector("#list-anytime tbody")
+      };
+      
+      Object.values(tables).forEach(t => t.innerHTML = "");
+      let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
+
+      data?.forEach(t => {
+        const row = `<tr><td>${t.uzd}</td><td style="text-align:right"><button onclick="delTask('${t.id}')">✖</button></td></tr>`;
+        tables['all'].innerHTML += row;
+        if (tables[t.svarigums]) {
+          tables[t.svarigums].innerHTML += row;
+          counts[t.svarigums]++;
+        }
+      });
+      updateChart(counts);
+    }
+
+    window.delTask = async (id) => {
+      await supabase.from('todolist').delete().eq('id', id);
+      loadTasks();
+    };
+
+    function updateChart(counts) {
+      const ctx = document.getElementById('priorityChart');
+      if (window.myChart) window.myChart.destroy();
+      window.myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(counts),
+          datasets: [{ data: Object.values(counts), backgroundColor: '#a53239' }]
+        },
+        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } }, plugins: { legend: { display: false } } }
+      });
+    }
+
+    function runClock() {
+      const now = new Date();
+      document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
+      const s = now.getSeconds() * 6, m = now.getMinutes() * 6, h = (now.getHours() % 12) * 30;
+      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
+      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
+      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
+    }
+
     async function init() {
       const { data } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
       if (data?.dashboard_layout) {
@@ -139,26 +208,6 @@
         });
       }
       loadTasks();
-    }
-
-    async function loadTasks() {
-      const { data } = await supabase.from('todolist').select('*').eq('username', user);
-      const tbody = document.querySelector("#task-list tbody");
-      tbody.innerHTML = data.map(t => `<tr><td>${t.uzd}</td><td style="text-align:right"><button onclick="delTask('${t.id}')">✖</button></td></tr>`).join('');
-    }
-
-    window.delTask = async (id) => {
-      await supabase.from('todolist').delete().eq('id', id);
-      loadTasks();
-    };
-
-    function runClock() {
-      const now = new Date();
-      document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
-      const s = now.getSeconds() * 6, m = now.getMinutes() * 6, h = (now.getHours() % 12) * 30;
-      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
-      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
-      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
     }
 
     setInterval(runClock, 1000);
