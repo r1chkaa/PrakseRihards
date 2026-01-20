@@ -11,6 +11,8 @@
 </head>
 <body>
 
+  <button class="reset-btn" onclick="resetDashboard()">↺ Reset Layout</button>
+
   <div class="grid-stack">
     <div class="grid-stack-item" gs-id="todo" gs-x="2" gs-y="5" gs-w="30" gs-h="80">
       <div class="grid-stack-item-content container todo-section">
@@ -34,7 +36,7 @@
       </div>
     </div>
 
-    <div class="grid-stack-item" gs-id="chart" gs-x="34" gs-y="5" gs-w="32" gs-h="50">
+    <div class="grid-stack-item" gs-id="chart" gs-x="34" gs-y="5" gs-w="32" gs-h="55">
       <div class="grid-stack-item-content container chart-section">
         <h3 class="drag-handle">Priority Stats</h3>
         <div class="chart-wrapper">
@@ -43,7 +45,7 @@
       </div>
     </div>
 
-    <div class="grid-stack-item" gs-id="clock" gs-x="68" gs-y="5" gs-w="28" gs-h="50">
+    <div class="grid-stack-item" gs-id="clock" gs-x="68" gs-y="5" gs-w="28" gs-h="55">
       <div class="grid-stack-item-content container clock-section">
         <h3 class="drag-handle">Clock</h3>
         <div id="digital-clock">00:00:00</div>
@@ -63,7 +65,7 @@
 
     let myChart = null;
 
-    // 1. Init Grid with 100 columns for free movement
+    // 1. Initialize Grid with 100 columns for free movement
     const grid = GridStack.init({
       column: 100,
       cellHeight: 5,
@@ -73,30 +75,37 @@
       resizable: { handles: 'se', autoHide: false }
     });
 
-    // 2. Load and Auto-Reset if layout is old
+    // 2. Initialize and load
     async function initialize() {
       try {
         const { data: userData } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
         
-        // If the layout in DB is from a different column system (not 100), ignore it to reset windows
+        // AUTO-FIX: Only load if it's the 100-column density. Otherwise, stay with HTML defaults.
         if (userData?.dashboard_layout && userData.dashboard_layout.column === 100) {
           grid.load(userData.dashboard_layout);
-        } else {
-          console.log("Applying default 100-column layout...");
-          // We don't call grid.load(), so it uses the HTML attributes (gs-x, etc.)
         }
-      } catch (err) { console.log("First time setup."); }
+      } catch (err) { console.log("New user initialization."); }
       
       await loadData();
       document.querySelector('.grid-stack').style.opacity = "1";
     }
 
+    // 3. Reset Function
+    window.resetDashboard = async () => {
+      if(confirm("Wipe layout and return to defaults?")) {
+        await supabase.from('users').update({ dashboard_layout: null }).eq('username', user);
+        location.reload();
+      }
+    };
+
+    // Save on Move/Resize
     grid.on('dragstop resizestop', async (event, el) => {
       const layout = grid.save();
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
-      if (myChart) myChart.resize();
+      if (myChart) myChart.resize(); // Sync chart size instantly
     });
 
+    // --- Data and Components ---
     async function loadData() {
       const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', { ascending: false });
       const tbody = document.querySelector("#list tbody");
