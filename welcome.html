@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Specific styles for the welcome page layout */
+    .welcome-container {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .welcome-text {
+      font-size: 5rem;
+      font-weight: bold;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      /* Animation: float-fade in from bottom */
+      opacity: 0;
+      transform: translateY(30px);
+      animation: floatFadeIn 1.2s ease-out forwards;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 20px;
+      /* Animation: delay until text starts appearing */
+      opacity: 0;
+      transform: translateY(20px);
+      animation: floatFadeIn 1s ease-out 0.8s forwards;
+    }
+
+    .welcome-btn {
+      width: 150px;
+      padding: 10px;
+      background: transparent;
+      border: 2px solid #ff4d4d;
+      color: white;
+      text-decoration: none;
+      border-radius: 20px;
+      font-weight: bold;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .welcome-btn:hover {
+      background: #792429;
+      transform: scale(1.05);
+    }
+
+    @keyframes floatFadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="welcome-container">
+    <div class="welcome-text">WELCOME</div>
+    
+    <div class="button-group">
+      <a href="login.html" class="welcome-btn">Log in</a>
+      <a href="register.html" class="welcome-btn">Register</a>
+    </div>
+  </div>
+
+</body>
+</html>
