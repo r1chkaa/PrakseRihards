@@ -23,7 +23,7 @@ body {
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-  overflow: hidden; /* Fixes "pulley" issues */
+  overflow: hidden; /* Prevents internal pulleys */
 }
 
 /* Custom Resize Handle: ) ) */
@@ -32,14 +32,16 @@ body {
   right: 5px !important; bottom: 5px !important;
   width: 30px !important; height: 30px !important;
   cursor: nwse-resize;
+  z-index: 10;
 }
 .ui-resizable-se::after {
   content: ') )';
   position: absolute; right: 2px; bottom: 2px;
-  color: #4a0e12; /* Dark red */
+  color: #4a0e12; 
   font-weight: bold; font-size: 20px;
   transform: rotate(45deg);
   letter-spacing: -2px;
+  pointer-events: none;
 }
 
 /* Drag Handle */
@@ -55,12 +57,12 @@ body {
   flex-shrink: 0;
 }
 
-/* Scaling Content Sections */
+/* Content Sections */
 .todo-section, .chart-section, .clock-section {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height: 0; /* Important for flex-grow on canvas */
 }
 
 .pulley-container {
@@ -75,12 +77,14 @@ body {
   flex-grow: 1;
   position: relative;
   width: 100%;
+  height: 100%;
 }
 
 /* Analog Clock Scaling */
-#digital-clock { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; }
+#digital-clock { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-align: center; }
 .analog-face {
-  width: 75%;
+  width: 70%;
+  max-width: 250px;
   aspect-ratio: 1 / 1;
   border: 3px solid white;
   border-radius: 50%;
@@ -88,11 +92,14 @@ body {
   margin: auto;
   flex-shrink: 1;
 }
+
 .analog-face::after {
   content: ''; position: absolute; width: 8px; height: 8px;
   background: white; border-radius: 50%;
   top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 10;
 }
+
 .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; background: white; border-radius: 10px; }
 .hour { width: 5px; height: 25%; z-index: 3; }
 .min  { width: 3px; height: 35%; z-index: 2; }
