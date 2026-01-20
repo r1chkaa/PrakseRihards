@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Premium Dashboard</title>
+  <title>Task Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -15,114 +15,79 @@
   </div>
 
   <div id="dashboard-canvas">
-    <div id="win-stats" class="window" style="top:20px; left:360px; width:400px; height:280px;">
-      <div class="window-header"><span>PRIORITY STATS</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
-      <div class="window-content"><canvas id="priorityChart"></canvas></div>
-      <div class="resize-handle"></div>
-    </div>
-
-    <div id="win-tasks" class="window" style="top:20px; left:20px; width:320px; height:420px;">
+    <div id="win-tasks" class="window" style="top:20px; left:20px; width:340px; height:450px;">
       <div class="window-header"><span>MY TASKS</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
       <div class="window-content">
         <div style="flex:1; overflow-y:auto;"><table id="list-all"><tbody></tbody></table></div>
-        <button onclick="location.href='save.html'" style="width:100%; margin-top:10px; background:#792429; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">+ Add Task</button>
+        <button onclick="location.href='save.html'" style="margin-top:10px; background:#792429; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">+ Add Task</button>
       </div>
-      <div class="resize-handle"></div>
     </div>
 
-    <div id="win-quotes" class="window" style="top:460px; left:20px; width:320px; height:160px;">
-      <div class="window-header"><span>💭 INSPIRATION</span><button class="close-btn" onclick="closeWin('win-quotes')">×</button></div>
-      <div class="window-content" style="text-align:center; justify-content:center;">
-        <div id="quote-display" style="font-style:italic; font-size:0.95rem; line-height:1.4;">"..."</div>
-        <div id="author-display" style="color:#ff4d4d; font-weight:bold; font-size:0.7rem; margin-top:10px; text-transform:uppercase;"></div>
-      </div>
-      <div class="resize-handle"></div>
+    <div id="win-stats" class="window" style="top:20px; left:380px; width:380px; height:280px;">
+      <div class="window-header"><span>STATS</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
+      <div class="window-content"><canvas id="priorityChart"></canvas></div>
     </div>
 
-    <div id="win-urgent" class="window category-win" style="top:20px; left:780px; width:240px; height:230px;">
+    <div id="win-urgent" class="window category-win" style="top:20px; left:780px; width:260px; height:230px;">
       <div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div>
-      <div class="window-content"><table id="list-urgent"><tbody></tbody></table></div>
+      <div class="window-content"><table><tbody id="list-urgent"></tbody></table></div>
     </div>
 
-    <div id="win-week" class="window category-win" style="top:270px; left:780px; width:240px; height:230px;">
+    <div id="win-week" class="window category-win" style="top:270px; left:780px; width:260px; height:230px;">
       <div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
-      <div class="window-content"><table id="list-week"><tbody></tbody></table></div>
+      <div class="window-content"><table><tbody id="list-week"></tbody></table></div>
     </div>
-
-    <div id="win-month" class="window category-win" style="top:20px; left:1040px; width:240px; height:230px;">
-      <div class="window-header"><span>🌙 MONTHLY</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div>
-      <div class="window-content"><table id="list-month"><tbody></tbody></table></div>
+    
     </div>
-
-    <div id="win-anytime" class="window category-win" style="top:270px; left:1040px; width:240px; height:230px;">
-      <div class="window-header"><span>☕ ANYTIME</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div>
-      <div class="window-content"><table id="list-anytime"><tbody></tbody></table></div>
-    </div>
-  </div>
 
   <script type="module">
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
     if(!user) location.href = "login.html";
 
-    // --- QUOTES DATA ---
-    const quotes = [
-      { t: "The only thing worse than being blind is having sight but no vision.", a: "Helen Keller" },
-      { t: "Go confidently in the direction of your dreams.", a: "Henry David Thoreau" },
-      { t: "You don’t have to be great to start, but you have to start to be great.", a: "Zig Ziglar" },
-      { t: "Whatever the mind can conceive and believe, it can achieve.", a: "Napoleon Hill" },
-      { t: "Find what you love and let it kill you.", a: "Charles Bukowski" }
-    ];
-
-    function handleQuotes() {
-      const now = Date.now();
-      const last = localStorage.getItem('q_time') || 0;
-      let idx = localStorage.getItem('q_idx');
-
-      if (now - last > 300000 || idx === null) { // 5 minutes
-        idx = Math.floor(Math.random() * quotes.length);
-        localStorage.setItem('q_idx', idx);
-        localStorage.setItem('q_time', now);
-      }
-      const q = quotes[idx];
-      document.getElementById('quote-display').innerText = `“${q.t}”`;
-      document.getElementById('author-display').innerText = q.a;
+    // --- TIME CALCULATION ---
+    function getTimeAgo(dateString) {
+      const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
+      if (seconds < 60) return seconds + "s ago";
+      if (seconds < 3600) return Math.floor(seconds / 60) + "m ago";
+      if (seconds < 86400) return Math.floor(seconds / 3600) + "h ago";
+      return Math.floor(seconds / 86400) + "d ago";
     }
 
-    // --- TASK LOADING & CHART ---
+    // --- DATA LOADING ---
     async function loadTasks() {
-      const { data } = await supabase.from('todolist').select('*').eq('username', user);
-      const tables = { 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
+      const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
+      const ids = { 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
       
       document.querySelectorAll('table tbody').forEach(tb => tb.innerHTML = "");
       let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
 
       data?.forEach(t => {
-        const row = `<tr><td>${t.uzd}</td><td style="text-align:right"><button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer;">✖</button></td></tr>`;
+        const timeStr = getTimeAgo(t.created_at);
+        const row = `
+          <tr>
+            <td>
+              <div class="task-container">
+                <span><span class="pulley"></span><span class="task-text">${t.uzd}</span></span>
+                <button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer;">✖</button>
+              </div>
+              <span class="time-text">${timeStr}</span>
+            </td>
+          </tr>`;
+
         document.querySelector("#list-all tbody").innerHTML += row;
-        if(tables[t.svarigums]) {
-          document.querySelector(tables[t.svarigums] + " tbody").innerHTML += row;
+        if(ids[t.svarigums]) {
+          document.querySelector(ids[t.svarigums] + " tbody").innerHTML += row;
           counts[t.svarigums]++;
         }
       });
-      renderChart(counts);
+      updateChart(counts);
     }
 
     window.delTask = async (id) => { await supabase.from('todolist').delete().eq('id', id); loadTasks(); };
 
-    function renderChart(counts) {
-      const ctx = document.getElementById('priorityChart').getContext('2d');
-      if (window.myChart) window.myChart.destroy();
-      window.myChart = new Chart(ctx, {
-        type: 'bar',
-        data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#a53239', borderColor: 'white', borderWidth: 1 }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } } }
-      });
-    }
-
     // --- WINDOW ENGINE ---
-    let activeWin = null, isDragging = false, isResizing = false;
-    let offset = {x:0, y:0}, startSize = {w:0, h:0, x:0, y:0};
+    let activeWin = null, isDragging = false, offset = {x:0, y:0};
 
     document.addEventListener('mousedown', e => {
       const win = e.target.closest('.window');
@@ -130,27 +95,17 @@
       activeWin = win;
       document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
       win.style.zIndex = 10;
-      if (e.target.classList.contains('resize-handle')) {
-        isResizing = true;
-        startSize = { w: win.offsetWidth, h: win.offsetHeight, x: e.clientX, y: e.clientY };
-      } else {
-        isDragging = true;
-        offset = { x: e.clientX - win.offsetLeft, y: e.clientY - win.offsetTop };
-      }
+      isDragging = true;
+      offset = { x: e.clientX - win.offsetLeft, y: e.clientY - win.offsetTop };
     });
 
     window.addEventListener('mousemove', e => {
-      if (!activeWin) return;
-      if (isDragging) {
-        activeWin.style.left = (e.clientX - offset.x) + 'px';
-        activeWin.style.top = (e.clientY - offset.y) + 'px';
-      } else if (isResizing) {
-        activeWin.style.width = (startSize.w + (e.clientX - startSize.x)) + 'px';
-        activeWin.style.height = (startSize.h + (e.clientY - startSize.y)) + 'px';
-      }
+      if (!isDragging || !activeWin) return;
+      activeWin.style.left = (e.clientX - offset.x) + 'px';
+      activeWin.style.top = (e.clientY - offset.y) + 'px';
     });
 
-    window.addEventListener('mouseup', () => { if(activeWin) saveLayout(); activeWin = null; isDragging = false; isResizing = false; });
+    window.addEventListener('mouseup', () => { if(activeWin) saveLayout(); isDragging = false; activeWin = null; });
 
     async function saveLayout() {
       const layout = {};
@@ -165,24 +120,30 @@
     window.toggleManager = () => {
       const m = document.getElementById('win-manager');
       m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-      m.innerHTML = '<b style="font-size:0.7rem; color:rgba(255,255,255,0.4); margin-bottom:5px;">ACTIVE WINDOWS</b>';
+      m.innerHTML = '<b style="padding-bottom:5px;">Windows</b>';
       document.querySelectorAll('.window').forEach(w => {
-        const title = w.querySelector('.window-header span').innerText;
         const btn = document.createElement('button');
         btn.className = 'win-toggle';
-        btn.innerHTML = `<span>${title}</span> <span>${w.style.display === 'none' ? '○' : '●'}</span>`;
-        btn.onclick = () => { 
-            w.style.display = (w.style.display === 'none' ? 'flex' : 'none'); 
-            saveLayout(); toggleManager(); 
-        };
+        btn.innerText = (w.style.display === 'none' ? 'Show ' : 'Hide ') + w.querySelector('.window-header span').innerText;
+        btn.onclick = () => { w.style.display = w.style.display === 'none' ? 'flex' : 'none'; saveLayout(); toggleManager(); };
         m.appendChild(btn);
       });
     };
 
     window.resetLayout = async () => {
-        await supabase.from('users').update({ dashboard_layout: null }).eq('username', user);
-        location.reload();
+      await supabase.from('users').update({ dashboard_layout: null }).eq('username', user);
+      location.reload();
     };
+
+    function updateChart(counts) {
+      const ctx = document.getElementById('priorityChart');
+      if (window.myChart) window.myChart.destroy();
+      window.myChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#a53239' }] },
+        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } } }
+      });
+    }
 
     async function init() {
       const { data } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
@@ -193,8 +154,7 @@
         });
       }
       loadTasks();
-      handleQuotes();
-      setInterval(handleQuotes, 30000);
+      setInterval(loadTasks, 60000); // Update "time ago" every minute
     }
     init();
   </script>
