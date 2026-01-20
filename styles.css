@@ -1,3 +1,4 @@
+/* Main Body - Centering the Dashboard */
 body {
   margin: 0;
   padding: 0;
@@ -13,15 +14,12 @@ body {
   overflow: hidden; /* Prevents whole page scrolling */
 }
 
-.main-layout {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center; /* Centers the three columns vertically relative to each other */
+/* GridStack Container */
+.grid-stack {
   width: 95vw;
-  gap: 20px;
 }
 
+/* Individual Window Styling */
 .container {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -29,12 +27,28 @@ body {
   border-radius: 15px;
   border: 1px solid rgba(255,255,255,0.2);
   text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Drag Handle Styling */
+.drag-handle {
+  cursor: grab;
+  background: rgba(121, 36, 41, 0.4); /* Dark red translucent handle */
+  margin: -30px -30px 20px -30px;
+  padding: 10px;
+  border-radius: 15px 15px 0 0;
+}
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 /* Pulley Scrollbar Logic */
 .pulley-container {
   overflow-y: auto;
-  max-height: 400px;
+  flex-grow: 1; /* Allows list to fill available space */
   padding-right: 10px;
 }
 
@@ -50,15 +64,17 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .analog-face {
-  width: 200px; /* Increased size */
-  height: 200px; /* Increased size */
+  width: 180px; 
+  height: 180px; 
   border: 5px solid white;
   border-radius: 50%;
   position: relative;
   background: rgba(255,255,255,0.05);
+  margin: 10px auto;
 }
 
 .hand {
@@ -72,17 +88,17 @@ body {
 
 /* Specific hand sizes */
 .hour { width: 6px; height: 50px; margin-left: -3px; z-index: 3; }
-.min  { width: 4px; height: 80px; margin-left: -2px; z-index: 2; }
-.sec  { width: 2px; height: 90px; margin-left: -1px; background: #ff4d4d; z-index: 1; }
+.min  { width: 4px; height: 70px; margin-left: -2px; z-index: 2; }
+.sec  { width: 2px; height: 80px; margin-left: -1px; background: #ff4d4d; z-index: 1; }
 
 /* Table Styles */
-table { width: 100%; border-collapse: collapse; margin-top: 20px; color: white; }
-th, td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); text-align: left; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; color: white; }
+th, td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); text-align: left; }
 
 /* Button Styles */
 button {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   background: #792429;
   color: white;
   border: none;
