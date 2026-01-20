@@ -3,79 +3,85 @@ body {
   min-height: 100vh;
   background: linear-gradient(135deg, #280c0e, #50181c, #792429);
   background-attachment: fixed;
-  display: flex; justify-content: center; align-items: center;
   font-family: 'Segoe UI', sans-serif;
-  color: white; overflow: hidden;
+  color: white;
+  overflow: hidden;
 }
 
-.grid-stack { width: 98vw; min-height: 95vh; opacity: 1; }
+/* The Workspace */
+#dashboard-canvas {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
 
-.container {
+/* New Window Style */
+.window {
+  position: absolute;
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  padding: 20px;
-  border-radius: 15px;
+  backdrop-filter: blur(15px);
+  border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.2);
   display: flex;
   flex-direction: column;
-  height: 100%;
-  box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  min-width: 200px;
+  min-height: 150px;
+  touch-action: none; /* Prevents scrolling while dragging */
 }
 
-/* Custom Resize Handle */
-.ui-resizable-se {
-  right: 5px !important; bottom: 5px !important;
-  width: 30px !important; height: 30px !important;
-  cursor: nwse-resize;
-}
-.ui-resizable-se::after {
-  content: ') )';
-  position: absolute; right: 2px; bottom: 2px;
-  color: #4a0e12; font-weight: bold; font-size: 20px;
-  transform: rotate(45deg); letter-spacing: -2px;
-}
-
-.drag-handle {
+/* Header / Drag Handle */
+.window-header {
+  padding: 12px;
+  background: rgba(121, 36, 41, 0.7);
+  border-radius: 12px 12px 0 0;
   cursor: grab;
-  background: rgba(121, 36, 41, 0.6);
-  margin: -20px -20px 15px -20px;
-  padding: 10px;
-  border-radius: 15px 15px 0 0;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-weight: bold;
   text-transform: uppercase;
+  user-select: none;
+}
+.window-header:active { cursor: grabbing; }
+
+/* Content Area */
+.window-content {
+  flex: 1;
+  padding: 15px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Content Scaling */
-.todo-section, .chart-section, .clock-section { flex-grow: 1; display: flex; flex-direction: column; min-height: 0; }
-.pulley-container { overflow-y: auto; flex-grow: 1; }
-.chart-wrapper { flex-grow: 1; position: relative; width: 100%; height: 100%; }
+/* Resize Handle */
+.resize-handle {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.3) 50%);
+  border-radius: 0 0 12px 0;
+}
 
-/* Clock */
-#digital-clock { font-weight: bold; font-size: 1.1rem; text-align: center; margin-bottom: 5px; }
+/* Internal Components */
+#digital-clock { font-size: 1.2rem; text-align: center; margin-bottom: 10px; font-weight: bold; }
 .analog-face {
-  width: 70%; aspect-ratio: 1/1; border: 3px solid white; border-radius: 50%;
-  position: relative; margin: auto;
+  flex: 1; aspect-ratio: 1/1; border: 2px solid white; border-radius: 50%;
+  position: relative; margin: auto; max-height: 150px;
 }
 .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; background: white; }
 .hour { width: 4px; height: 25%; }
 .min { width: 2px; height: 35%; }
 .sec { width: 1px; height: 40%; background: #ff4d4d; }
 
-/* Table & Action Buttons */
-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-button { width: 100%; padding: 8px; background: #792429; color: white; border: none; border-radius: 6px; cursor: pointer; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.scroll-area { flex: 1; overflow-y: auto; margin-bottom: 10px; }
+button { padding: 8px; background: #792429; color: white; border: none; border-radius: 5px; cursor: pointer; }
 
 /* Fixed Reset Button */
 .reset-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;
-  padding: 10px 20px;
-  background: #280c0e;
-  color: white;
-  border: 1px solid white;
-  border-radius: 20px;
-  cursor: pointer;
-  width: auto !important;
+  position: fixed; bottom: 20px; right: 20px;
+  padding: 10px 20px; background: #280c0e; color: white;
+  border: 1px solid white; border-radius: 20px; cursor: pointer; z-index: 10000;
 }
