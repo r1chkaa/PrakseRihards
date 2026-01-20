@@ -2,63 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Task Master Dashboard</title>
+  <title>Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <button class="reset-btn" onclick="resetLayout()">↺ Reset Workspace</button>
+  <div class="controls">
+    <div id="win-manager"></div>
+    <button class="ctrl-btn" onclick="toggleManager()">📁 Windows</button>
+    <button class="ctrl-btn" onclick="resetLayout()">↺ Reset</button>
+  </div>
 
   <div id="dashboard-canvas">
-    <div id="win-tasks" class="window" style="top: 20px; left: 20px; width: 300px; height: 350px;">
-      <div class="window-header">All Tasks</div>
-      <div class="window-content">
-        <div class="scroll-area"><table id="list-all"><tbody></tbody></table></div>
-        <button onclick="location.href='save.html'" style="margin-top:10px;">+ Add New</button>
-      </div>
+    <div id="win-tasks" class="window" style="top:20px; left:20px; width:300px; height:350px;">
+      <div class="window-header"><span>All Tasks</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
+      <div class="window-content"><div class="scroll-area"><table id="list-all"><tbody></tbody></table></div><button onclick="location.href='save.html'" style="margin-top:10px; background:#792429; color:white; border:1px solid white; cursor:pointer;">+ Add</button></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-stats" class="window" style="top: 20px; left: 340px; width: 350px; height: 250px;">
-      <div class="window-header">Stats</div>
+    <div id="win-stats" class="window" style="top:20px; left:340px; width:350px; height:250px;">
+      <div class="window-header"><span>Stats</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
       <div class="window-content"><canvas id="priorityChart"></canvas></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-clock" class="window" style="top: 20px; left: 710px; width: 220px; height: 250px;">
-      <div class="window-header">Clock</div>
-      <div class="window-content">
-        <div id="digital-clock" style="text-align:center; margin-bottom:5px;">00:00</div>
-        <div class="analog-face" id="face">
-          <div class="hand hour" id="hour-hand"></div>
-          <div class="hand min" id="min-hand"></div>
-          <div class="hand sec" id="sec-hand"></div>
-        </div>
-      </div>
+    <div id="win-clock" class="window" style="top:20px; left:710px; width:220px; height:250px;">
+      <div class="window-header"><span>Clock</span><button class="close-btn" onclick="closeWin('win-clock')">×</button></div>
+      <div class="window-content"><div id="digital-clock" style="text-align:center; font-size:1rem;">00:00</div><div class="analog-face" id="face"><div class="hand hour" id="hour-hand"></div><div class="hand min" id="min-hand"></div><div class="hand sec" id="sec-hand"></div></div></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-urgent" class="window category-win" style="top: 380px; left: 20px; width: 230px; height: 250px;">
-      <div class="window-header">🚨 Urgent</div>
+    <div id="win-urgent" class="window category-win" style="top:380px; left:20px; width:230px; height:250px;">
+      <div class="window-header"><span>🚨 Urgent</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div>
       <div class="window-content"><div class="scroll-area"><table id="list-urgent"><tbody></tbody></table></div></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-week" class="window category-win" style="top: 380px; left: 260px; width: 230px; height: 250px;">
-      <div class="window-header">📅 This Week</div>
+    <div id="win-week" class="window category-win" style="top:380px; left:260px; width:230px; height:250px;">
+      <div class="window-header"><span>📅 This Week</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
       <div class="window-content"><div class="scroll-area"><table id="list-week"><tbody></tbody></table></div></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-month" class="window category-win" style="top: 380px; left: 500px; width: 230px; height: 250px;">
-      <div class="window-header">🌙 This Month</div>
+    <div id="win-month" class="window category-win" style="top:380px; left:500px; width:230px; height:250px;">
+      <div class="window-header"><span>🌙 This Month</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div>
       <div class="window-content"><div class="scroll-area"><table id="list-month"><tbody></tbody></table></div></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-anytime" class="window category-win" style="top: 380px; left: 740px; width: 230px; height: 250px;">
-      <div class="window-header">☕ Anytime</div>
+    <div id="win-anytime" class="window category-win" style="top:380px; left:740px; width:230px; height:250px;">
+      <div class="window-header"><span>☕ Anytime</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div>
       <div class="window-content"><div class="scroll-area"><table id="list-anytime"><tbody></tbody></table></div></div>
       <div class="resize-handle"></div>
     </div>
@@ -68,132 +62,132 @@
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
 
-    // Clock Number Generation
+    // Init Clock Numbers
     const face = document.getElementById('face');
-    for(let i=1; i<=12; i++) {
-      let n = document.createElement('div');
-      n.className = 'clock-number';
-      n.style.transform = `rotate(${i*30}deg)`;
-      n.innerHTML = `<span style="display:block; transform:rotate(-${i*30}deg)">${i}</span>`;
+    for(let i=1; i<=12; i++){
+      let n = document.createElement('div'); n.className='clock-number';
+      n.style.transform=`rotate(${i*30}deg)`; n.innerHTML=`<span style="display:block; transform:rotate(-${i*30}deg)">${i}</span>`;
       face.appendChild(n);
     }
 
-    // --- COLLISION MOVE ENGINE ---
+    // --- SMOOTH MOVEMENT ENGINE ---
     let activeWin = null, isResizing = false;
-    let offset = { x: 0, y: 0 };
-
-    function isColliding(rect1, id1) {
-      const windows = document.querySelectorAll('.window');
-      for (let win of windows) {
-        if (win.id === id1) continue;
-        const rect2 = win.getBoundingClientRect();
-        if (!(rect1.right < rect2.left || rect1.left > rect2.right || 
-              rect1.bottom < rect2.top || rect1.top > rect2.bottom)) return true;
-      }
-      return false;
-    }
+    let startMouseX, startMouseY, startWinX, startWinY, startWinW, startWinH;
 
     document.addEventListener('mousedown', e => {
       const win = e.target.closest('.window');
-      if (!win) return;
+      if (!win || e.target.classList.contains('close-btn')) return;
+
       activeWin = win;
       document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
       win.style.zIndex = 10;
+
       isResizing = e.target.classList.contains('resize-handle');
-      offset.x = e.clientX - win.offsetLeft;
-      offset.y = e.clientY - win.offsetTop;
+      startMouseX = e.clientX; startMouseY = e.clientY;
+      startWinX = win.offsetLeft; startWinY = win.offsetTop;
+      startWinW = win.offsetWidth; startWinH = win.offsetHeight;
     });
 
     document.addEventListener('mousemove', e => {
       if (!activeWin) return;
-      let newX = activeWin.offsetLeft, newY = activeWin.offsetTop;
-      let newW = activeWin.offsetWidth, newH = activeWin.offsetHeight;
 
       if (isResizing) {
-        newW = e.clientX - activeWin.getBoundingClientRect().left;
-        newH = e.clientY - activeWin.getBoundingClientRect().top;
-      } else if (e.target.classList.contains('window-header') || activeWin.contains(e.target)) {
-        newX = e.clientX - offset.x;
-        newY = e.clientY - offset.y;
-      } else { return; }
-
-      // Boundaries
-      if (newX < 0) newX = 0; if (newY < 0) newY = 0;
-      if (newX + newW > window.innerWidth) newX = window.innerWidth - newW;
-      if (newY + newH > window.innerHeight) newY = window.innerHeight - newH;
-
-      const nextRect = { left: newX, top: newY, right: newX + newW, bottom: newY + newH };
-      if (!isColliding(nextRect, activeWin.id)) {
-        activeWin.style.left = newX + 'px';
-        activeWin.style.top = newY + 'px';
-        activeWin.style.width = newW + 'px';
-        activeWin.style.height = newH + 'px';
+        let w = startWinW + (e.clientX - startMouseX);
+        let h = startWinH + (e.clientY - startMouseY);
+        activeWin.style.width = Math.max(180, w) + 'px';
+        activeWin.style.height = Math.max(120, h) + 'px';
         if(window.myChart && activeWin.id === 'win-stats') window.myChart.resize();
+      } else {
+        let x = startWinX + (e.clientX - startMouseX);
+        let y = startWinY + (e.clientY - startMouseY);
+        
+        // Boundaries only
+        x = Math.max(0, Math.min(x, window.innerWidth - activeWin.offsetWidth));
+        y = Math.max(0, Math.min(y, window.innerHeight - activeWin.offsetHeight));
+        
+        activeWin.style.left = x + 'px';
+        activeWin.style.top = y + 'px';
       }
     });
 
-    document.addEventListener('mouseup', async () => {
-      if (!activeWin) return;
+    document.addEventListener('mouseup', saveLayout);
+
+    // --- WINDOW MANAGEMENT ---
+    window.closeWin = (id) => {
+      document.getElementById(id).style.display = 'none';
+      saveLayout();
+    };
+
+    window.toggleManager = () => {
+      const m = document.getElementById('win-manager');
+      m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+      renderManager();
+    };
+
+    function renderManager() {
+      const m = document.getElementById('win-manager');
+      m.innerHTML = '<strong style="font-size:0.7rem; margin-bottom:5px;">Toggle Windows</strong>';
+      document.querySelectorAll('.window').forEach(win => {
+        const btn = document.createElement('button');
+        btn.className = 'win-toggle';
+        btn.innerText = (win.style.display === 'none' ? 'Show ' : 'Hide ') + win.id.replace('win-', '');
+        btn.onclick = () => {
+          win.style.display = (win.style.display === 'none') ? 'flex' : 'none';
+          renderManager();
+          saveLayout();
+        };
+        m.appendChild(btn);
+      });
+    }
+
+    async function saveLayout() {
       const layout = {};
       document.querySelectorAll('.window').forEach(w => {
-        layout[w.id] = { top: w.style.top, left: w.style.left, width: w.style.width, height: w.style.height };
+        layout[w.id] = { 
+          top: w.style.top, left: w.style.left, 
+          width: w.style.width, height: w.style.height,
+          display: w.style.display 
+        };
       });
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
-      activeWin = null;
-    });
+    }
 
     window.resetLayout = async () => {
       await supabase.from('users').update({ dashboard_layout: null }).eq('username', user);
       location.reload();
     };
 
-    // --- DATA LOADING ---
+    // --- DATA ---
     async function loadTasks() {
       const { data } = await supabase.from('todolist').select('*').eq('username', user);
-      const tables = {
-        'all': document.querySelector("#list-all tbody"),
-        'Urgent': document.querySelector("#list-urgent tbody"),
-        'This week': document.querySelector("#list-week tbody"),
-        'This month': document.querySelector("#list-month tbody"),
-        'Anytime': document.querySelector("#list-anytime tbody")
-      };
-      
-      Object.values(tables).forEach(t => t.innerHTML = "");
-      let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
-
+      const targets = { 'all': '#list-all', 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
+      Object.values(targets).forEach(q => document.querySelector(q + " tbody").innerHTML = "");
+      let counts = { Urgent:0, "This week":0, "This month":0, Anytime:0 };
       data?.forEach(t => {
         const row = `<tr><td>${t.uzd}</td><td style="text-align:right"><button onclick="delTask('${t.id}')">✖</button></td></tr>`;
-        tables['all'].innerHTML += row;
-        if (tables[t.svarigums]) {
-          tables[t.svarigums].innerHTML += row;
+        document.querySelector("#list-all tbody").innerHTML += row;
+        if(targets[t.svarigums]) {
+          document.querySelector(targets[t.svarigums] + " tbody").innerHTML += row;
           counts[t.svarigums]++;
         }
       });
       updateChart(counts);
     }
 
-    window.delTask = async (id) => {
-      await supabase.from('todolist').delete().eq('id', id);
-      loadTasks();
-    };
+    window.delTask = async (id) => { await supabase.from('todolist').delete().eq('id', id); loadTasks(); };
 
     function updateChart(counts) {
       const ctx = document.getElementById('priorityChart');
       if (window.myChart) window.myChart.destroy();
       window.myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: Object.keys(counts),
-          datasets: [{ data: Object.values(counts), backgroundColor: '#a53239' }]
-        },
+        type: 'bar', data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#a53239' }] },
         options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } }, plugins: { legend: { display: false } } }
       });
     }
 
     function runClock() {
-      const now = new Date();
-      document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
-      const s = now.getSeconds() * 6, m = now.getMinutes() * 6, h = (now.getHours() % 12) * 30;
+      const now = new Date(); document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
+      const s = now.getSeconds()*6, m = now.getMinutes()*6, h = (now.getHours()%12)*30;
       document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
       document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
       document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
@@ -207,10 +201,8 @@
           if (w) Object.assign(w.style, data.dashboard_layout[id]);
         });
       }
-      loadTasks();
+      loadTasks(); setInterval(runClock, 1000);
     }
-
-    setInterval(runClock, 1000);
     init();
   </script>
 </body>
