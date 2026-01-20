@@ -83,3 +83,26 @@ button {
 
 .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; background: white; border-radius: 2px; }
 .sec { background: #ff4d4d !important; width: 1px; height: 42%; }
+
+/* Dark Overlay Background */
+#modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Darkens the background */
+  display: none; align-items: center; justify-content: center;
+  z-index: 20000; /* Above all other windows */
+}
+
+/* Confirmation Box */
+.confirm-box {
+  background: #280c0e;
+  border: 1px solid white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  width: 280px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.confirm-btns { display: flex; gap: 10px; margin-top: 15px; }
+.confirm-btns button { margin: 0; }
+.btn-no { background: transparent !important; border: 1px solid white !important; }
