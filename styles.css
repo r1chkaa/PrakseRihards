@@ -1,4 +1,4 @@
-/* Global Reset and Background */
+/* --- Global Reset & Background --- */
 body {
   margin: 0; padding: 0;
   min-height: 100vh;
@@ -9,10 +9,9 @@ body {
   color: white; overflow: hidden;
 }
 
-/* Grid Settings */
 .grid-stack { width: 98vw; opacity: 0; transition: opacity 0.5s ease-in; }
 
-/* Dashboard Widget Container */
+/* --- Window Container --- */
 .container {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
@@ -27,7 +26,7 @@ body {
   overflow: hidden; 
 }
 
-/* Custom Resize Handle: ) ) */
+/* --- Custom Resize Handle: ) ) --- */
 .ui-resizable-se {
   background-image: none !important;
   right: 5px !important; bottom: 5px !important;
@@ -45,7 +44,7 @@ body {
   pointer-events: none;
 }
 
-/* Drag Handle Styling */
+/* --- Drag Handle --- */
 .drag-handle {
   cursor: grab;
   background: rgba(121, 36, 41, 0.6);
@@ -58,7 +57,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Component Sections */
+/* --- Content Sections --- */
 .todo-section, .chart-section, .clock-section {
   flex-grow: 1;
   display: flex;
@@ -81,7 +80,7 @@ body {
   height: 100%;
 }
 
-/* Analog Clock Scaling */
+/* --- Analog Clock --- */
 #digital-clock { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-align: center; }
 .analog-face {
   width: 80%;
@@ -103,7 +102,7 @@ body {
 .min  { width: 3px; height: 35%; z-index: 2; }
 .sec  { width: 1.5px; height: 40%; background: #ff4d4d; z-index: 1; }
 
-/* Tables & Buttons */
+/* --- Buttons & Tables --- */
 table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
 th, td { padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
 button {
@@ -113,26 +112,21 @@ button {
 }
 .secondary { background: rgba(255,255,255,0.1) !important; }
 
-/* Floating Reset Button - Explicit Positioning */
+/* --- The Reset Button (Corner) --- */
 .reset-btn {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: auto !important; /* Overrides global button width */
-  padding: 12px 20px;
-  background: rgba(121, 36, 41, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  bottom: 25px;
+  right: 25px;
+  width: auto !important;
+  padding: 10px 20px;
+  background: #4a0e12;
+  border: 1px solid rgba(255,255,255,0.3);
   color: white;
-  font-size: 0.9rem;
-  border-radius: 50px;
+  font-size: 0.85rem;
+  border-radius: 30px;
   cursor: pointer;
   z-index: 9999;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  transition: background 0.2s;
 }
-.reset-btn:hover {
-  background: #a53239;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-}
+.reset-btn:hover { background: #792429; }
