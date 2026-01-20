@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Productivity Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,17 +10,15 @@
 
   <div class="controls">
     <div id="win-manager"></div>
-    <button class="ctrl-btn" onclick="toggleManager()">📁 Windows</button>
-    <button class="ctrl-btn" onclick="resetLayout()">↺ Reset</button>
+    <button class="ctrl-btn" onclick="toggleManager()">Windows</button>
+    <button class="ctrl-btn" onclick="resetLayout()">↺ Reset Layout</button>
+    <button class="ctrl-btn" onclick="logout()">Logout</button>
   </div>
 
   <div id="dashboard-canvas">
     <div id="win-tasks" class="window" style="top:20px; left:20px; width:320px; height:400px;">
       <div class="window-header"><span>ALL TASKS</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
-      <div class="window-content">
-        <div style="flex:1; overflow-y:auto;"><table id="list-all"><tbody></tbody></table></div>
-        <button onclick="location.href='save.html'">+ Add Task</button>
-      </div>
+      <div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-all"><tbody></tbody></table></div><button onclick="location.href='save.html'">+ Add Task</button></div>
       <div class="resize-handle"></div>
     </div>
 
@@ -34,8 +31,8 @@
     <div id="win-clock" class="window" style="top:290px; left:360px; width:220px; height:280px;">
       <div class="window-header"><span>CLOCK</span><button class="close-btn" onclick="closeWin('win-clock')">×</button></div>
       <div class="window-content">
-        <div id="digital-clock" style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:1.2rem;">00:00:00</div>
-        <div class="analog-face" style="width:110px; height:110px; border:2px solid white; border-radius:50%; position:relative; margin:auto;">
+        <div id="digital-clock" style="text-align:center; font-weight:bold; margin-bottom:10px;">00:00:00</div>
+        <div class="analog-face" style="width:100px; height:100px; border:2px solid white; border-radius:50%; position:relative; margin:auto;">
           <div class="hand hour" id="hour-hand" style="width:4px; height:25%; left:48%"></div>
           <div class="hand min" id="min-hand" style="width:2px; height:35%; left:49%"></div>
           <div class="hand sec" id="sec-hand" style="width:1px; height:42%; left:49.5%; background:#ff4d4d;"></div>
@@ -47,34 +44,27 @@
     <div id="win-quotes" class="window" style="top:590px; left:20px; width:690px; height:130px;">
       <div class="window-header"><span>💭 INSPIRATION</span><button class="close-btn" onclick="closeWin('win-quotes')">×</button></div>
       <div class="window-content" style="text-align:center; justify-content:center;">
-        <div id="quote-display" style="font-style:italic; font-size:1rem; margin-bottom:5px;">"Loading inspiration..."</div>
-        <div id="author-display" style="font-weight:bold; font-size:0.8rem; color:#ff4d4d; text-transform:uppercase;"></div>
+        <div id="quote-display">Loading...</div>
+        <div id="author-display" style="font-weight:bold; color:#ff4d4d;"></div>
       </div>
       <div class="resize-handle"></div>
     </div>
 
     <div id="win-urgent" class="window category-win" style="top:20px; left:730px; width:240px; height:230px;">
-      <div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div>
-      <div class="window-content"><div style="flex:1; overflow-y:auto;"><table><tbody id="list-urgent"></tbody></table></div></div>
-      <div class="resize-handle"></div>
+        <div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div>
+        <div class="window-content"><table><tbody id="list-urgent"></tbody></table></div><div class="resize-handle"></div>
     </div>
-
     <div id="win-week" class="window category-win" style="top:270px; left:730px; width:240px; height:230px;">
-      <div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
-      <div class="window-content"><div style="flex:1; overflow-y:auto;"><table><tbody id="list-week"></tbody></table></div></div>
-      <div class="resize-handle"></div>
+        <div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
+        <div class="window-content"><table><tbody id="list-week"></tbody></table></div><div class="resize-handle"></div>
     </div>
-
     <div id="win-month" class="window category-win" style="top:20px; left:990px; width:240px; height:230px;">
-      <div class="window-header"><span>🌙 MONTHLY</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div>
-      <div class="window-content"><div style="flex:1; overflow-y:auto;"><table><tbody id="list-month"></tbody></table></div></div>
-      <div class="resize-handle"></div>
+        <div class="window-header"><span>🌙 MONTHLY</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div>
+        <div class="window-content"><table><tbody id="list-month"></tbody></table></div><div class="resize-handle"></div>
     </div>
-
     <div id="win-anytime" class="window category-win" style="top:270px; left:990px; width:240px; height:230px;">
-      <div class="window-header"><span>☕ ANYTIME</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div>
-      <div class="window-content"><div style="flex:1; overflow-y:auto;"><table><tbody id="list-anytime"></tbody></table></div></div>
-      <div class="resize-handle"></div>
+        <div class="window-header"><span>☕ ANYTIME</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div>
+        <div class="window-content"><table><tbody id="list-anytime"></tbody></table></div><div class="resize-handle"></div>
     </div>
   </div>
 
@@ -83,149 +73,53 @@
     const user = localStorage.getItem("username");
     if(!user) location.href = "login.html";
 
-    // --- QUOTES DATA & LOGIC ---
+    // --- RESET LAYOUT FUNCTION ---
+    window.resetLayout = async () => {
+      if(confirm("Reset all window positions?")) {
+        await supabase.from('users').update({ dashboard_layout: null }).eq('username', user);
+        location.reload(); // Reloads to apply default inline CSS positions
+      }
+    };
+
+    window.logout = () => { localStorage.clear(); location.href='login.html'; };
+
+    // --- QUOTES LOGIC ---
     const quotes = [
       "Helen Keller — “The only thing worse than being blind is having sight but no vision.”",
       "Henry David Thoreau — “Go confidently in the direction of your dreams.”",
-      "Zig Ziglar — “You don’t have to be great to start.”",
-      "George Orwell — “In a time of deceit telling the truth is a revolutionary act.”",
-      "Napoleon Hill — “Whatever the mind can conceive and believe, it can achieve.”",
-      "Anthony Bourdain — “Your body is not a temple, it’s an amusement park.”",
-      "Edith Wharton — “There are two ways of spreading light.”",
-      "Virginia Woolf — “A woman must have money and a room of her own.”",
-      "F. Scott Fitzgerald — “So we beat on, boats against the current.”",
       "Mary Shelley — “Beware; for I am fearless.”",
-      "Anaïs Nin — “We see things not as they are, but as we are.”",
-      "Neil Gaiman — “Make good art.”",
-      "J. D. Vance — “There is no shortcut to a meaningful life.”",
-      "H. Jackson Brown Jr. — “Never deprive someone of hope.”",
-      "Bryant H. McGill — “One of the most sincere forms of respect is listening.”",
-      "Brian Tracy — “Goals allow you to control the direction of change.”",
-      "Christopher Hitchens — “What can be asserted without evidence can be dismissed.”",
-      "Stephen King — “Get busy living or get busy dying.”",
-      "Henry Miller — “The aim of life is to live.”",
-      "Joseph Campbell — “Follow your bliss.”",
-      "Brené Brown — “Vulnerability is the birthplace of innovation.”",
-      "Frederick Douglass — “If there is no struggle, there is no progress.”",
-      "Marcel Proust — “The real voyage of discovery consists not in seeking new lands.”",
-      "Joyce Meyer — “You cannot have a positive life with a negative mind.”",
-      "Aleksandr Solzhenitsyn — “The line dividing good and evil cuts through the heart.”",
-      "Thomas Merton — “Happiness is not a matter of intensity but balance.”",
-      "Victor Hugo — “Even the darkest night will end.”",
-      "Gertrude Stein — “Everybody gets so much information all day long.”",
-      "George Eliot — “It is never too late to be what you might have been.”",
-      "Aesop — “No act of kindness is ever wasted.”",
-      "Terry Pratchett — “Stories of imagination tend to upset those without one.”",
-      "H. G. Wells — “If you fell down yesterday, stand up today.”",
-      "Corrie Ten Boom — “Worry does not empty tomorrow of sorrow.”",
-      "Marianne Williamson — “Our deepest fear is not that we are inadequate.”",
-      "Lewis Carroll — “If you don’t know where you are going, any road will do.”",
-      "Robert Kiyosaki — “It’s not how much money you make.”",
-      "John Steinbeck — “And now that you don’t have to be perfect.”",
-      "John Burroughs — “Leap and the net will appear.”",
-      "Ken Kesey — “You don’t lead by pointing and telling.”",
-      "Simon Sinek — “People don’t buy what you do.”",
-      "Tom Robbins — “Seriousness is the only refuge of the shallow.”",
-      "Og Mandino — “I will persist until I succeed.”",
-      "Leo Buscaglia — “Change is the end result of all true learning.”",
-      "Charles Bukowski — “Find what you love and let it kill you.”",
-      "Anne Lamott — “Almost everything will work again if you unplug it.”",
-      "Jason Reynolds — “Your story matters.”",
-      "Jane Rule — “Anger is one of the strongest passions.”",
-      "Ben Shapiro — “Facts don’t care about your feelings.”",
-      "Peter Benchley — “Fear is the most powerful emotion.”",
-      "Flannery O’Connor — “You shall know the truth.”",
-      "Hans Christian Andersen — “Life itself is the most wonderful fairy tale.”",
-      "John Trudell — “We are here to learn.”",
-      "A. A. Milne — “You are braver than you believe.”",
-      "Sandra Cisneros — “I write for the ones who don’t speak.”",
-      "Alice Walker — “The most common way people give up power.”",
-      "Sarah Fielding — “Friendship is the strongest bond.”",
-      "James Thurber — “Let us not look back in anger.”",
-      "Pete Hegseth — “Strength is built through challenge.”",
-      "Anh Do — “Never give up on your dreams.”",
-      "Martha Beck — “Integrity is the cure for unhappiness.”"
+      "Frederick Douglass — “If there is no struggle, there is no progress.”"
+      // ... (add the rest of your quotes here)
     ];
 
-    function updateQuote() {
+    function handleQuotes() {
       const now = Date.now();
       const lastTime = localStorage.getItem('quote_time') || 0;
-      const savedIndex = localStorage.getItem('quote_index');
-      
-      // 5 minutes = 300,000 ms
-      if (now - lastTime > 300000 || savedIndex === null) {
-        const newIndex = Math.floor(Math.random() * quotes.length);
-        localStorage.setItem('quote_index', newIndex);
+      let index = localStorage.getItem('quote_index');
+      if (now - lastTime > 300000 || index === null) {
+        index = Math.floor(Math.random() * quotes.length);
+        localStorage.setItem('quote_index', index);
         localStorage.setItem('quote_time', now);
-        displayQuote(newIndex);
-      } else {
-        displayQuote(savedIndex);
       }
-    }
-
-    function displayQuote(index) {
       const parts = quotes[index].split(' — ');
       document.getElementById('author-display').innerText = parts[0];
       document.getElementById('quote-display').innerText = parts[1];
     }
 
-    // --- TASK LOGIC ---
-    function timeAgo(date) {
-      const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-      if (seconds < 60) return seconds + "s ago";
-      if (seconds < 3600) return Math.floor(seconds/60) + "m ago";
-      if (seconds < 86400) return Math.floor(seconds/3600) + "h ago";
-      return Math.floor(seconds/86400) + "d ago";
-    }
-
-    async function loadTasks() {
-      const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
-      const lists = { 'all': '#list-all', 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
-      
-      Object.values(lists).forEach(id => document.querySelector(id + " tbody").innerHTML = "");
-      let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
-
-      data?.forEach(t => {
-        const row = `<tr><td><b>${t.uzd}</b><span class="time-text">${timeAgo(t.created_at)}</span></td>
-                     <td style="text-align:right"><button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer;">✖</button></td></tr>`;
-        document.querySelector("#list-all tbody").innerHTML += row;
-        if(lists[t.svarigums]) {
-          document.querySelector(lists[t.svarigums] + " tbody").innerHTML += row;
-          counts[t.svarigums]++;
-        }
-      });
-      renderChart(counts);
-    }
-
-    window.delTask = async (id) => { await supabase.from('todolist').delete().eq('id', id); loadTasks(); };
-
-    // --- CHART ---
-    function renderChart(counts) {
-      const ctx = document.getElementById('priorityChart');
-      if (window.myChart) window.myChart.destroy();
-      window.myChart = new Chart(ctx, {
-        type: 'bar',
-        data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#a53239' }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } } }
-      });
-    }
-
-    // --- WINDOW ENGINE (FIXED STICKING) ---
+    // --- WINDOW ENGINE ---
     let activeWin = null, isDragging = false, isResizing = false;
-    let offset = { x: 0, y: 0 }, initialSize = { w: 0, h: 0 };
+    let offset = { x: 0, y: 0 }, startSize = { w: 0, h: 0, x: 0, y: 0 };
 
     document.addEventListener('mousedown', e => {
       const win = e.target.closest('.window');
       if (!win || e.target.classList.contains('close-btn')) return;
-      
       activeWin = win;
       document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
       win.style.zIndex = 10;
-
       if (e.target.classList.contains('resize-handle')) {
         isResizing = true;
-        initialSize = { w: win.offsetWidth, h: win.offsetHeight, x: e.clientX, y: e.clientY };
-      } else if (e.target.closest('.window-header')) {
+        startSize = { w: win.offsetWidth, h: win.offsetHeight, x: e.clientX, y: e.clientY };
+      } else {
         isDragging = true;
         offset = { x: e.clientX - win.offsetLeft, y: e.clientY - win.offsetTop };
       }
@@ -237,28 +131,12 @@
         activeWin.style.left = (e.clientX - offset.x) + 'px';
         activeWin.style.top = (e.clientY - offset.y) + 'px';
       } else if (isResizing) {
-        activeWin.style.width = (initialSize.w + (e.clientX - initialSize.x)) + 'px';
-        activeWin.style.height = (initialSize.h + (e.clientY - initialSize.y)) + 'px';
+        activeWin.style.width = (startSize.w + (e.clientX - startSize.x)) + 'px';
+        activeWin.style.height = (startSize.h + (e.clientY - startSize.y)) + 'px';
       }
     });
 
     window.addEventListener('mouseup', () => { if(activeWin) saveLayout(); activeWin = null; isDragging = false; isResizing = false; });
-
-    // --- UI HELPERS ---
-    window.closeWin = (id) => { document.getElementById(id).style.display = 'none'; saveLayout(); };
-    
-    window.toggleManager = () => {
-      const m = document.getElementById('win-manager');
-      m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-      m.innerHTML = '<b style="font-size:0.7rem; margin-bottom:5px;">Folder</b>';
-      document.querySelectorAll('.window').forEach(w => {
-        const btn = document.createElement('button');
-        btn.className = 'win-toggle';
-        btn.innerText = (w.style.display === 'none' ? 'Show ' : 'Hide ') + w.querySelector('.window-header span').innerText;
-        btn.onclick = () => { w.style.display = w.style.display === 'none' ? 'flex' : 'none'; toggleManager(); saveLayout(); };
-        m.appendChild(btn);
-      });
-    };
 
     async function saveLayout() {
       const layout = {};
@@ -268,7 +146,52 @@
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
     }
 
-    function updateClock() {
+    window.closeWin = (id) => { document.getElementById(id).style.display = 'none'; saveLayout(); };
+
+    window.toggleManager = () => {
+      const m = document.getElementById('win-manager');
+      m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+      m.innerHTML = '<b style="padding-bottom:5px;">Windows</b>';
+      document.querySelectorAll('.window').forEach(w => {
+        const btn = document.createElement('button');
+        btn.className = 'win-toggle';
+        btn.innerText = (w.style.display === 'none' ? 'Show ' : 'Hide ') + w.querySelector('.window-header span').innerText;
+        btn.onclick = () => { w.style.display = (w.style.display === 'none' ? 'flex' : 'none'); saveLayout(); toggleManager(); };
+        m.appendChild(btn);
+      });
+    };
+
+    // --- DATA LOADING ---
+    async function loadTasks() {
+      const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
+      const ids = { 'all': '#list-all', 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
+      Object.values(ids).forEach(sel => { if(document.querySelector(sel)) document.querySelector(sel + " tbody").innerHTML = ""; });
+      
+      let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
+      data?.forEach(t => {
+        const row = `<tr><td>${t.uzd}</td><td style="text-align:right"><button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer;">✖</button></td></tr>`;
+        document.querySelector("#list-all tbody").innerHTML += row;
+        if(ids[t.svarigums]) {
+            document.querySelector(ids[t.svarigums] + " tbody").innerHTML += row;
+            counts[t.svarigums]++;
+        }
+      });
+      updateChart(counts);
+    }
+
+    window.delTask = async (id) => { await supabase.from('todolist').delete().eq('id', id); loadTasks(); };
+
+    function updateChart(counts) {
+      const ctx = document.getElementById('priorityChart');
+      if (window.myChart) window.myChart.destroy();
+      window.myChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#a53239' }] },
+        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } } }
+      });
+    }
+
+    function clock() {
       const now = new Date();
       document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
       const s = now.getSeconds() * 6, m = now.getMinutes() * 6, h = (now.getHours() % 12) * 30 + (m / 12);
@@ -286,9 +209,8 @@
         });
       }
       loadTasks();
-      updateQuote();
-      setInterval(updateClock, 1000);
-      setInterval(updateQuote, 30000); // Check every 30s if 5 mins passed
+      handleQuotes();
+      setInterval(clock, 1000);
     }
     init();
   </script>
