@@ -2,28 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add Task</title>
+  <title>New Task</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div class="form">
-    <h2>📝 New Task</h2>
-    <input id="uzd" type="text" placeholder="Task name..." minlength="3">
+<body class="auth-page">
+  <div class="window-box">
+    <h2 style="margin-top:0;">📝 NEW TASK</h2>
+    <input id="uzd" type="text" placeholder="Task description..." minlength="3">
     
     <select id="uzdveids">
       <option value="Personal">Personal</option>
-      <option value="School">School</option>
       <option value="Work">Work</option>
+      <option value="School">School</option>
+      <option value="Event">Event</option>
+      <option value="Holidays">Holidays</option>
+      <option value="Home">Home</option>
+      <option value="Shopping">Shopping</option>
     </select>
     
     <select id="svarigums">
       <option value="Urgent">Urgent</option>
+      <option value="This week">This week</option>
+      <option value="This month">This month</option>
       <option value="Anytime">Anytime</option>
     </select>
 
-    <button id="saveBtn">Save Task</button>
-    <button onclick="location.href='index.html'" class="secondary" style="background:#444; margin-top:10px;">Back</button>
-    <p id="msg" style="color: #ff4d4d; margin-top: 10px;"></p>
+    <button id="saveBtn">SAVE TASK</button>
+    <button onclick="location.href='dashboard.html'" style="background:transparent; border:none; font-size:0.8rem;">CANCEL</button>
+    <p id="msg" style="color:#ff4d4d; margin-top:10px; font-size:0.8rem;"></p>
   </div>
 
   <script type="module">
@@ -32,29 +38,17 @@
     if (!user) location.href = "login.html";
 
     document.getElementById("saveBtn").onclick = async () => {
-      const taskName = document.getElementById("uzd").value;
-      const msg = document.getElementById("msg");
+      const name = document.getElementById("uzd").value;
+      if(name.length < 3) return document.getElementById("msg").innerText = "Too short!";
       
-      if (taskName.length < 3) {
-        msg.innerText = "Task name too short!";
-        return;
-      }
-
-      // We send exactly what the database expects
       const { error } = await supabase.from("todolist").insert([{ 
-        uzd: taskName, 
+        uzd: name, 
         uzdveids: document.getElementById("uzdveids").value, 
         svarigums: document.getElementById("svarigums").value, 
-        username: user,
-        pabeigts: false 
+        username: user 
       }]);
-
-      if (error) {
-        console.error(error);
-        msg.innerText = "Error: " + error.message;
-      } else {
-        location.href = 'index.html';
-      }
+      if (error) document.getElementById("msg").innerText = error.message;
+      else location.href = 'dashboard.html';
     };
   </script>
 </body>
