@@ -23,7 +23,7 @@ body {
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-  overflow: hidden; /* Prevents internal pulleys */
+  overflow: hidden; /* No pulleys */
 }
 
 /* Custom Resize Handle: ) ) */
@@ -57,12 +57,12 @@ body {
   flex-shrink: 0;
 }
 
-/* Content Sections */
+/* Free-Scaling Content */
 .todo-section, .chart-section, .clock-section {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0; /* Important for flex-grow on canvas */
+  min-height: 0; 
 }
 
 .pulley-container {
@@ -83,8 +83,7 @@ body {
 /* Analog Clock Scaling */
 #digital-clock { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-align: center; }
 .analog-face {
-  width: 70%;
-  max-width: 250px;
+  width: 85%;
   aspect-ratio: 1 / 1;
   border: 3px solid white;
   border-radius: 50%;
