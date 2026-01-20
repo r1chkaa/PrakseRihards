@@ -1,4 +1,4 @@
-/* Body & Background */
+/* Global Reset and Background */
 body {
   margin: 0; padding: 0;
   min-height: 100vh;
@@ -9,9 +9,10 @@ body {
   color: white; overflow: hidden;
 }
 
+/* Grid Settings */
 .grid-stack { width: 98vw; opacity: 0; transition: opacity 0.5s ease-in; }
 
-/* Window Container */
+/* Dashboard Widget Container */
 .container {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
@@ -23,7 +24,7 @@ body {
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-  overflow: hidden; 
+  overflow: hidden; /* Prevents internal pulleys/scrollbars */
 }
 
 /* Custom Resize Handle: ) ) */
@@ -44,7 +45,7 @@ body {
   pointer-events: none;
 }
 
-/* Drag Handle */
+/* Drag Handle Styling */
 .drag-handle {
   cursor: grab;
   background: rgba(121, 36, 41, 0.6);
@@ -57,7 +58,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Free-Scaling Content */
+/* Component Sections (Flexible Scaling) */
 .todo-section, .chart-section, .clock-section {
   flex-grow: 1;
   display: flex;
@@ -91,20 +92,18 @@ body {
   margin: auto;
   flex-shrink: 1;
 }
-
 .analog-face::after {
   content: ''; position: absolute; width: 8px; height: 8px;
   background: white; border-radius: 50%;
   top: 50%; left: 50%; transform: translate(-50%, -50%);
   z-index: 10;
 }
-
 .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; background: white; border-radius: 10px; }
 .hour { width: 5px; height: 25%; z-index: 3; }
 .min  { width: 3px; height: 35%; z-index: 2; }
 .sec  { width: 1.5px; height: 40%; background: #ff4d4d; z-index: 1; }
 
-/* Tables & Buttons */
+/* Table and Buttons */
 table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
 th, td { padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
 button {
@@ -113,3 +112,26 @@ button {
   border-radius: 6px; cursor: pointer; font-weight: bold; flex-shrink: 0;
 }
 .secondary { background: rgba(255,255,255,0.1) !important; }
+
+/* Reset Button (Bottom Right) */
+.reset-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: auto;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+.reset-btn:hover {
+  background: #792429;
+  border-color: #ff4d4d;
+  transform: scale(1.05);
+}
