@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/gridstack@10.0.1/dist/gridstack.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="styles.css">
@@ -11,41 +10,25 @@
 </head>
 <body>
 
-  <button class="reset-btn" onclick="resetDashboard()">↺ Reset Layout</button>
+  <button class="reset-btn" onclick="hardReset()">↺ Reset Layout</button>
 
   <div class="grid-stack">
-    <div class="grid-stack-item" gs-id="todo" gs-x="5" gs-y="5" gs-w="30" gs-h="80">
+    <div class="grid-stack-item" gs-id="todo" gs-x="0" gs-y="0" gs-w="30" gs-h="15">
       <div class="grid-stack-item-content container todo-section">
-        <h2 class="drag-handle">My Tasks</h2>
-        <div class="pulley-container">
-          <table id="list">
-            <thead>
-              <tr>
-                <th>Task</th>
-                <th>Priority</th>
-                <th>Done</th>
-                <th>Time</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <button onclick="location.href='save.html'" style="margin-top:10px;">+ Add Task</button>
-        <button onclick="localStorage.clear(); location.href='index.html';" class="secondary" style="margin-top:5px;">Logout</button>
+        <h2 class="drag-handle">Tasks</h2>
+        <div class="pulley-container"><table id="list"><tbody></tbody></table></div>
+        <button onclick="location.href='save.html'">+ Add</button>
       </div>
     </div>
 
-    <div class="grid-stack-item" gs-id="chart" gs-x="38" gs-y="5" gs-w="32" gs-h="55">
+    <div class="grid-stack-item" gs-id="chart" gs-x="30" gs-y="0" gs-w="40" gs-h="12">
       <div class="grid-stack-item-content container chart-section">
-        <h3 class="drag-handle">Priority Stats</h3>
-        <div class="chart-wrapper">
-           <canvas id="priorityChart"></canvas>
-        </div>
+        <h3 class="drag-handle">Stats</h3>
+        <div class="chart-wrapper"><canvas id="priorityChart"></canvas></div>
       </div>
     </div>
 
-    <div class="grid-stack-item" gs-id="clock" gs-x="73" gs-y="5" gs-w="22" gs-h="55">
+    <div class="grid-stack-item" gs-id="clock" gs-x="70" gs-y="0" gs-w="25" gs-h="12">
       <div class="grid-stack-item-content container clock-section">
         <h3 class="drag-handle">Clock</h3>
         <div id="digital-clock">00:00:00</div>
@@ -61,103 +44,81 @@
   <script type="module">
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
-    if (!user) location.href = "login.html";
-
-    let myChart = null;
-    let grid = GridStack.init({
+    
+    // Grid Setup
+    const grid = GridStack.init({
       column: 100,
-      cellHeight: 5,
+      cellHeight: '40px',
       margin: 10,
-      handle: '.drag-handle',
+      disableOneColumnMode: true, // STOP SQUISHING
       float: true,
-      resizable: { handles: 'se', autoHide: false }
+      handle: '.drag-handle',
+      resizable: { handles: 'se' }
     });
 
-    // Save on Move
-    grid.on('dragstop resizestop', async (event, el) => {
-      const layout = grid.save();
-      await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
-      if (myChart) myChart.resize();
-    });
-
-    // RESET FUNCTION
-    window.resetDashboard = async () => {
-      if(confirm("Hard reset layout to fix squishing?")) {
-        // 1. Wipe database
+    // Hard Reset Logic
+    window.hardReset = async () => {
+      if(confirm("This will force the windows to their original positions. Proceed?")) {
         await supabase.from('users').update({ dashboard_layout: null }).eq('username', user);
-        // 2. Wipe browser memory
-        localStorage.removeItem('gridstack-layout');
-        // 3. Force reload ignoring cache
-        window.location.href = window.location.href.split('?')[0] + "?nocache=" + Date.now();
+        window.location.reload();
       }
     };
 
-    async function initialize() {
-      try {
-        const { data: userData } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
-        // Only load if it matches our 100-column system
-        if (userData?.dashboard_layout && userData.dashboard_layout.column === 100) {
-          grid.load(userData.dashboard_layout);
-        }
-      } catch (err) {}
-      await loadData();
-      document.querySelector('.grid-stack').style.opacity = "1";
+    grid.on('change', async () => {
+      const layout = grid.save();
+      await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
+    });
+
+    async function init() {
+      const { data } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
+      if (data?.dashboard_layout) {
+        grid.load(data.dashboard_layout);
+      }
+      loadTasks();
     }
 
-    // --- Components ---
-    async function loadData() {
-      const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', { ascending: false });
+    async function loadTasks() {
+      const { data } = await supabase.from('todolist').select('*').eq('username', user);
       const tbody = document.querySelector("#list tbody");
-      if (!tbody) return;
       tbody.innerHTML = "";
-      const counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
+      let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
+      
       data?.forEach(t => {
-        if (counts.hasOwnProperty(t.svarigums)) counts[t.svarigums]++;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${t.uzd}</td><td>${t.svarigums}</td><td><input type="checkbox" ${t.pabeigts ? 'checked' : ''} onchange="toggleDone('${t.id}', this.checked)"></td><td style="font-size:0.7rem;">${new Date(t.created_at).toLocaleDateString()}</td><td><button onclick="delTask('${t.id}')" style="width:auto; padding:2px 6px;">✖</button></td>`;
-        tbody.appendChild(tr);
+        if(counts[t.svarigums] !== undefined) counts[t.svarigums]++;
+        tbody.innerHTML += `<tr><td>${t.uzd}</td><td>${t.svarigums}</td><td><button onclick="delTask('${t.id}')">✖</button></td></tr>`;
       });
       updateChart(counts);
     }
 
-    window.toggleDone = async (id, val) => {
-      await supabase.from("todolist").update({ pabeigts: val }).eq("id", id);
-      loadData();
-    };
-
     window.delTask = async (id) => {
-      if(confirm("Delete?")) {
-        await supabase.from("todolist").delete().eq("id", id);
-        loadData();
-      }
+      await supabase.from('todolist').delete().eq('id', id);
+      loadTasks();
     };
 
     function updateChart(counts) {
-      const ctx = document.getElementById('priorityChart').getContext('2d');
-      if (myChart) myChart.destroy();
-      myChart = new Chart(ctx, {
+      const ctx = document.getElementById('priorityChart');
+      if (window.myChart) window.myChart.destroy();
+      window.myChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Urgent', 'Week', 'Month', 'Anytime'],
-          datasets: [{ data: [counts.Urgent, counts["This week"], counts["This month"], counts.Anytime], backgroundColor: ['#ff4d4d', '#ff944d', '#4db8ff', '#4dff88'] }]
+          labels: Object.keys(counts),
+          datasets: [{ data: Object.values(counts), backgroundColor: '#ff4d4d' }]
         },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } } }
+        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: 'white' } } } }
       });
     }
 
     function runClock() {
       const now = new Date();
-      const digital = document.getElementById('digital-clock');
-      if(digital) digital.innerText = now.toLocaleTimeString();
-      const s = now.getSeconds(), m = now.getMinutes(), h = now.getHours();
-      document.getElementById('sec-hand').style.transform = `rotate(${s * 6}deg)`;
-      document.getElementById('min-hand').style.transform = `rotate(${m * 6 + s * 0.1}deg)`;
-      document.getElementById('hour-hand').style.transform = `rotate(${(h % 12) * 30 + m * 0.5}deg)`;
+      document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
+      const s = now.getSeconds() * 6, m = now.getMinutes() * 6, h = (now.getHours() % 12) * 30;
+      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
+      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
+      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
     }
 
     setInterval(runClock, 1000);
-    runClock();
-    initialize();
+    init();
   </script>
 </body>
 </html>
