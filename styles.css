@@ -6,72 +6,95 @@ body {
   font-family: 'Segoe UI', sans-serif;
   color: white;
   overflow: hidden;
-  /* Page edge border as requested */
-  border: 8px solid rgba(255, 255, 255, 0.4);
-  box-sizing: border-box;
+  /* Removed page border as requested */
 }
 
 #dashboard-canvas {
-  width: 100%;
-  height: calc(100vh - 16px); /* Account for 8px top/bottom border */
+  width: 100vw;
+  height: 100vh;
   position: relative;
 }
 
+/* Original Window Style */
 .window {
   position: absolute;
-  background: rgba(40, 12, 14, 0.95); /* Solid background back */
+  background: rgba(40, 12, 14, 0.95);
   backdrop-filter: blur(10px);
-  border-radius: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.6); /* Thick window borders */
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  min-width: 200px;
-  min-height: 150px;
+  min-width: 180px;
+  min-height: 120px;
   z-index: 1;
+}
+
+/* Lighter Red Shade for Categories */
+.window.category-win {
+  background: rgba(165, 50, 57, 0.9); /* Lighter red */
 }
 
 .window-header {
   padding: 10px;
-  background: #792429;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(121, 36, 41, 1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px 10px 0 0;
   cursor: grab;
   font-weight: bold;
+  font-size: 0.8rem;
+  text-transform: uppercase;
   user-select: none;
 }
 
-.window-content { flex: 1; padding: 15px; overflow: hidden; display: flex; flex-direction: column; }
+.window-content { flex: 1; padding: 12px; overflow: hidden; display: flex; flex-direction: column; }
 
 .resize-handle {
   width: 15px; height: 15px;
   position: absolute; right: 0; bottom: 0;
   cursor: nwse-resize;
-  background: rgba(255,255,255,0.3);
+  background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.2) 50%);
 }
 
-/* Analog Clock with Numbers */
+/* Clock */
 .analog-face {
-  width: 160px; height: 160px;
-  border: 3px solid white; border-radius: 50%;
+  width: 140px; height: 140px;
+  border: 2px solid white; border-radius: 50%;
   position: relative; margin: auto;
 }
 .clock-number {
   position: absolute; width: 100%; height: 100%;
-  text-align: center; font-weight: bold; font-size: 1rem;
-  padding: 2px; box-sizing: border-box;
+  text-align: center; font-weight: bold; font-size: 0.8rem;
 }
 .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; background: white; }
-.hour { width: 4px; height: 25%; z-index: 3; }
-.min { width: 2px; height: 35%; z-index: 2; }
-.sec { width: 1px; height: 40%; background: #ff4d4d; z-index: 1; }
+.hour { width: 4px; height: 25%; }
+.min { width: 2px; height: 35%; }
+.sec { width: 1px; height: 40%; background: #ff4d4d; }
 
+/* Lists & Tables */
 .scroll-area { flex: 1; overflow-y: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-td { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 5px 0; }
-button { background: #792429; color: white; border: 1px solid white; padding: 5px; cursor: pointer; border-radius: 4px; }
+td { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 6px 0; }
+
+button { 
+  background: #792429; color: white; border: 1px solid white; 
+  padding: 6px; cursor: pointer; border-radius: 4px; font-weight: bold;
+}
 
 .reset-btn {
-  position: fixed; bottom: 30px; right: 30px;
-  padding: 10px 20px; background: #280c0e; color: white;
-  border: 2px solid white; border-radius: 50px; cursor: pointer; z-index: 9999;
+  position: fixed; bottom: 20px; right: 20px;
+  padding: 8px 16px; background: #280c0e; color: white;
+  border: 1px solid white; border-radius: 20px; cursor: pointer; z-index: 9999;
+}
+
+/* Old Auth Style Restore */
+.auth-box {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2);
+  width: 300px; text-align: center;
+}
+.auth-input {
+  width: 100%; padding: 10px; margin: 10px 0;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
+  color: white; border-radius: 5px; box-sizing: border-box;
 }
