@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard</title>
+  <title>Personal Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -15,8 +15,8 @@
   </div>
 
   <div id="dashboard-canvas">
-    <div id="win-tasks" class="window" style="top:50px; left:50px; width:320px; height:400px;">
-      <div class="window-header"><span>MY TASKS</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
+    <div id="win-tasks" class="window" style="top:40px; left:40px; width:320px; height:400px;">
+      <div class="window-header"><span>ALL TASKS</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
       <div class="window-content">
         <div style="flex:1; overflow-y:auto;"><table id="list-all"><tbody></tbody></table></div>
         <button onclick="location.href='save.html'" style="margin-top:10px; background:#792429; color:white; border:1px solid white; padding:8px; cursor:pointer; border-radius:5px;">+ Add Task</button>
@@ -24,13 +24,13 @@
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-stats" class="window" style="top:50px; left:400px; width:400px; height:300px;">
-      <div class="window-header"><span>PRIORITY STATS</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
+    <div id="win-stats" class="window" style="top:40px; left:380px; width:380px; height:300px;">
+      <div class="window-header"><span>STATS</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
       <div class="window-content"><canvas id="priorityChart"></canvas></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-clock" class="window" style="top:380px; left:400px; width:240px; height:300px;">
+    <div id="win-clock" class="window" style="top:360px; left:380px; width:240px; height:300px;">
       <div class="window-header"><span>CLOCK</span><button class="close-btn" onclick="closeWin('win-clock')">×</button></div>
       <div class="window-content">
         <div id="digital-clock" style="text-align:center; font-weight:bold; margin-bottom:10px;">00:00:00</div>
@@ -43,25 +43,25 @@
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-urgent" class="window category-win" style="top:50px; left:820px; width:240px; height:280px;">
+    <div id="win-urgent" class="window category-win" style="top:40px; left:780px; width:240px; height:280px;">
       <div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div>
       <div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-urgent"><tbody></tbody></table></div></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-week" class="window category-win" style="top:350px; left:820px; width:240px; height:280px;">
-      <div class="window-header"><span>📅 THIS WEEK</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
+    <div id="win-week" class="window category-win" style="top:340px; left:780px; width:240px; height:280px;">
+      <div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
       <div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-week"><tbody></tbody></table></div></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-month" class="window category-win" style="top:50px; left:1080px; width:240px; height:280px;">
-      <div class="window-header"><span>🌙 THIS MONTH</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div>
+    <div id="win-month" class="window category-win" style="top:40px; left:1040px; width:240px; height:280px;">
+      <div class="window-header"><span>🌙 MONTHLY</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div>
       <div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-month"><tbody></tbody></table></div></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-anytime" class="window category-win" style="top:350px; left:1080px; width:240px; height:280px;">
+    <div id="win-anytime" class="window category-win" style="top:340px; left:1040px; width:240px; height:280px;">
       <div class="window-header"><span>☕ ANYTIME</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div>
       <div class="window-content"><div style="flex:1; overflow-y:auto;"><table id="list-anytime"><tbody></tbody></table></div></div>
       <div class="resize-handle"></div>
@@ -72,7 +72,7 @@
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
 
-    // Clock Face setup
+    // Init Clock Numbers
     const face = document.getElementById('face');
     for(let i=1; i<=12; i++){
       let n = document.createElement('div'); n.className='clock-number';
@@ -80,8 +80,8 @@
       face.appendChild(n);
     }
 
-    // --- DRAG & RESIZE LOGIC ---
-    let activeWin = null, isResizing = false;
+    // --- NON-STICKY DRAG ENGINE ---
+    let activeWin = null, isDragging = false, isResizing = false;
     let startX, startY, startW, startH, startLeft, startTop;
 
     document.addEventListener('mousedown', e => {
@@ -89,7 +89,6 @@
       if (!win || e.target.classList.contains('close-btn')) return;
 
       activeWin = win;
-      // Z-Index front
       document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
       win.style.zIndex = 10;
 
@@ -97,39 +96,39 @@
       startLeft = win.offsetLeft; startTop = win.offsetTop;
       startW = win.offsetWidth; startH = win.offsetHeight;
 
-      isResizing = e.target.classList.contains('resize-handle');
-      
-      // If clicking inside the window but not on header/resize, don't drag
-      if (!isResizing && !e.target.closest('.window-header')) {
+      if (e.target.classList.contains('resize-handle')) {
+        isResizing = true;
+      } else if (e.target.closest('.window-header')) {
+        isDragging = true;
+      } else {
         activeWin = null;
       }
     });
 
-    document.addEventListener('mousemove', e => {
+    // Attach to window to prevent "sticking" when mouse leaves window area
+    window.addEventListener('mousemove', e => {
       if (!activeWin) return;
 
       if (isResizing) {
         activeWin.style.width = Math.max(200, startW + (e.clientX - startX)) + 'px';
         activeWin.style.height = Math.max(150, startH + (e.clientY - startY)) + 'px';
         if(window.myChart && activeWin.id === 'win-stats') window.myChart.resize();
-      } else {
+      } else if (isDragging) {
         let x = startLeft + (e.clientX - startX);
         let y = startTop + (e.clientY - startY);
-        
-        // Screen bounds
+        // Boundaries
         x = Math.max(0, Math.min(x, window.innerWidth - activeWin.offsetWidth));
         y = Math.max(0, Math.min(y, window.innerHeight - activeWin.offsetHeight));
-
         activeWin.style.left = x + 'px';
         activeWin.style.top = y + 'px';
       }
     });
 
-    document.addEventListener('mouseup', () => {
-      if (activeWin) {
-        saveLayout();
-        activeWin = null;
-      }
+    window.addEventListener('mouseup', () => {
+      if (activeWin) saveLayout();
+      activeWin = null;
+      isDragging = false;
+      isResizing = false;
     });
 
     // --- WINDOW MGMT ---
@@ -146,7 +145,7 @@
 
     function renderManager() {
       const m = document.getElementById('win-manager');
-      m.innerHTML = '<b style="font-size:0.7rem; margin-bottom:5px;">Toggle Windows</b>';
+      m.innerHTML = '<b style="font-size:0.7rem; display:block; margin-bottom:8px;">Toggle Windows</b>';
       document.querySelectorAll('.window').forEach(win => {
         const btn = document.createElement('button');
         btn.className = 'win-toggle';
@@ -178,7 +177,7 @@
       location.reload();
     };
 
-    // --- DATA ---
+    // --- TASKS LOADING ---
     async function loadTasks() {
       const { data } = await supabase.from('todolist').select('*').eq('username', user);
       const ids = { 'all': '#list-all', 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
