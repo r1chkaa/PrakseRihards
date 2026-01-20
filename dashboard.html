@@ -1,183 +1,146 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Full Dashboard</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <title>Ultimate Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-  <div class="controls">
-    <div id="win-manager"></div>
-    <button class="ctrl-btn" onclick="toggleManager()">📁 Folder</button>
-    <button class="ctrl-btn" onclick="resetLayout()">↺ Reset Layout</button>
-  </div>
-
-  <div id="dashboard-canvas">
-    <div id="win-tasks" class="window" style="top:20px; left:20px; width:340px; height:450px;">
-      <div class="window-header"><span>MY TASKS</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
-      <div class="window-content">
-        <div style="flex:1; overflow-y:auto;"><table id="list-all"><tbody></tbody></table></div>
-        <button onclick="location.href='save.html'" style="margin-top:10px; background:#792429; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">+ Add Task</button>
-      </div>
+    <div class="controls">
+        <div id="win-manager"></div>
+        <button class="ctrl-btn" onclick="toggleManager()">📁 Windows</button>
+        <button class="ctrl-btn" onclick="resetLayout()">↺ Reset</button>
     </div>
 
-    <div id="win-clock" class="window" style="top:320px; left:380px; width:220px; height:280px;">
-      <div class="window-header"><span>CLOCK</span><button class="close-btn" onclick="closeWin('win-clock')">×</button></div>
-      <div class="window-content">
-        <div id="digital-clock" style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:1.1rem;">00:00:00</div>
-        <div class="analog-face">
-          <div class="hand hour" id="hour-hand"></div>
-          <div class="hand min" id="min-hand"></div>
-          <div class="hand sec" id="sec-hand"></div>
+    <div id="dashboard-canvas">
+        <div id="win-tasks" class="window" style="top:20px; left:20px; width:340px; height:450px;">
+            <div class="window-header"><span>MY TASKS</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
+            <div class="window-content"><div style="flex:1;overflow-y:auto;"><table id="list-all"></table></div><button onclick="location.href='save.html'" style="background:#792429; color:white; border:none; padding:8px; cursor:pointer; margin-top:5px; border-radius:4px;">+ Add Task</button></div>
         </div>
-      </div>
+
+        <div id="win-clock" class="window" style="top:20px; left:380px; width:220px; height:240px;">
+            <div class="window-header"><span>CLOCK</span><button class="close-btn" onclick="closeWin('win-clock')">×</button></div>
+            <div class="window-content"><div id="digital" style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:1.1rem;"></div><div class="analog-face"><div class="hand hour" id="hour"></div><div class="hand min" id="min"></div><div class="hand sec" id="sec"></div></div></div>
+        </div>
+
+        <div id="win-quotes" class="window" style="top:280px; left:380px; width:220px; height:150px;">
+            <div class="window-header"><span>DAILY QUOTE</span><button class="close-btn" onclick="closeWin('win-quotes')">×</button></div>
+            <div class="window-content" style="justify-content:center;"><div id="quote-display">"..."</div><div id="author-display"></div></div>
+        </div>
+
+        <div id="win-stats" class="window" style="top:450px; left:380px; width:380px; height:240px;">
+            <div class="window-header"><span>DIAGRAM</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
+            <div class="window-content"><canvas id="priorityChart"></canvas></div>
+        </div>
+
+        <div id="win-urgent" class="window category-win" style="top:20px; left:780px; width:260px; height:180px;"><div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div><div class="window-content"><table id="list-urgent"></table></div></div>
+        <div id="win-week" class="window category-win" style="top:210px; left:780px; width:260px; height:180px;"><div class="window-header"><span>📅 THIS WEEK</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div><div class="window-content"><table id="list-week"></table></div></div>
+        <div id="win-month" class="window category-win" style="top:400px; left:780px; width:260px; height:180px;"><div class="window-header"><span>🌙 THIS MONTH</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div><div class="window-content"><table id="list-month"></table></div></div>
+        <div id="win-anytime" class="window category-win" style="top:20px; left:1060px; width:260px; height:180px;"><div class="window-header"><span>☕ ANYTIME</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div><div class="window-content"><table id="list-anytime"></table></div></div>
     </div>
 
-    <div id="win-stats" class="window" style="top:20px; left:380px; width:380px; height:280px;">
-      <div class="window-header"><span>STATS</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
-      <div class="window-content"><canvas id="priorityChart"></canvas></div>
-    </div>
-
-    <div id="win-urgent" class="window category-win" style="top:20px; left:780px; width:260px; height:230px;">
-      <div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div>
-      <div class="window-content"><table><tbody id="list-urgent"></tbody></table></div>
-    </div>
-
-    <div id="win-week" class="window category-win" style="top:270px; left:780px; width:260px; height:230px;">
-      <div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
-      <div class="window-content"><table><tbody id="list-week"></tbody></table></div>
-    </div>
-  </div>
-
-  <script type="module">
+<script type="module">
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
     if(!user) location.href = "login.html";
 
-    // --- RELATIVE TIME ---
-    function getTimeAgo(dateString) {
-      const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
-      if (seconds < 60) return seconds + "s ago";
-      if (seconds < 3600) return Math.floor(seconds / 60) + "m ago";
-      if (seconds < 86400) return Math.floor(seconds / 3600) + "h ago";
-      return Math.floor(seconds / 86400) + "d ago";
-    }
+    // --- QUOTE DATA ---
+    const quotes = [
+        { t: "Action is the foundational key to all success.", a: "Pablo Picasso" },
+        { t: "The best way to predict your future is to create it.", a: "Abraham Lincoln" },
+        { t: "Don't let yesterday take up too much of today.", a: "Will Rogers" },
+        { t: "Efficiency is doing things right; effectiveness is doing the right things.", a: "Peter Drucker" }
+    ];
 
-    // --- CLOCK LOGIC ---
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
-      const s = now.getSeconds() * 6, m = now.getMinutes() * 6, h = (now.getHours() % 12) * 30 + (m / 12);
-      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
-      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
-      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
-    }
+    // --- TIME HELPERS ---
+    const tAgo = (d) => {
+        let s = Math.floor((new Date() - new Date(d)) / 1000);
+        if (s < 60) return s + 's';
+        if (s < 3600) return Math.floor(s/60) + 'm';
+        if (s < 86400) return Math.floor(s/3600) + 'h';
+        return Math.floor(s/86400) + 'd';
+    };
 
-    // --- TASK LOADING ---
+    // --- DATA LOADING ---
     async function loadTasks() {
-      const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
-      const ids = { 'Urgent': '#list-urgent', 'This week': '#list-week' };
-      
-      document.querySelectorAll('table tbody').forEach(tb => tb.innerHTML = "");
-      let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
+        const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
+        const ids = {'Urgent':'#list-urgent', 'This week':'#list-week', 'This month':'#list-month', 'Anytime':'#list-anytime'};
+        document.querySelectorAll('table').forEach(t => t.innerHTML = "");
+        let counts = {Urgent:0, "This week":0, "This month":0, Anytime:0};
 
-      data?.forEach(t => {
-        const row = `
-          <tr>
-            <td>
-              <div class="task-container">
-                <span><span class="pulley"></span><b>${t.uzd}</b></span>
-                <button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer;">✖</button>
-              </div>
-              <span class="time-text">${getTimeAgo(t.created_at)}</span>
-            </td>
-          </tr>`;
-
-        document.querySelector("#list-all tbody").innerHTML += row;
-        if(ids[t.svarigums]) {
-          document.querySelector(ids[t.svarigums] + " tbody").innerHTML += row;
-          counts[t.svarigums]++;
-        }
-      });
-      updateChart(counts);
+        data?.forEach(t => {
+            let row = `<tr><td><div class="task-container"><span><span class="pulley"></span><b>${t.uzd}</b></span><button onclick="delTask('${t.id}')" style="background:none;border:none;color:white;cursor:pointer">✖</button></div><div class="time-text">${tAgo(t.created_at)} ago</div></td></tr>`;
+            document.querySelector('#list-all').innerHTML += row;
+            if(ids[t.svarigums]) { document.querySelector(ids[t.svarigums]).innerHTML += row; counts[t.svarigums]++; }
+        });
+        renderChart(counts);
     }
 
     window.delTask = async (id) => { await supabase.from('todolist').delete().eq('id', id); loadTasks(); };
 
-    // --- WINDOW ENGINE ---
-    let activeWin = null, isDragging = false, offset = {x:0, y:0};
-
-    document.addEventListener('mousedown', e => {
-      const win = e.target.closest('.window');
-      if (!win || e.target.classList.contains('close-btn')) return;
-      activeWin = win;
-      document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
-      win.style.zIndex = 10;
-      isDragging = true;
-      offset = { x: e.clientX - win.offsetLeft, y: e.clientY - win.offsetTop };
-    });
-
-    window.addEventListener('mousemove', e => {
-      if (!isDragging || !activeWin) return;
-      activeWin.style.left = (e.clientX - offset.x) + 'px';
-      activeWin.style.top = (e.clientY - offset.y) + 'px';
-    });
-
-    window.addEventListener('mouseup', () => { if(activeWin) saveLayout(); isDragging = false; activeWin = null; });
-
-    async function saveLayout() {
-      const layout = {};
-      document.querySelectorAll('.window').forEach(w => {
-        layout[w.id] = { top: w.style.top, left: w.style.left, width: w.style.width, height: w.style.height, display: w.style.display };
-      });
-      await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
-    }
-
-    window.closeWin = (id) => { document.getElementById(id).style.display = 'none'; saveLayout(); };
-
-    window.toggleManager = () => {
-      const m = document.getElementById('win-manager');
-      m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-      m.innerHTML = '<b>Windows</b>';
-      document.querySelectorAll('.window').forEach(w => {
-        const btn = document.createElement('button');
-        btn.className = 'win-toggle';
-        btn.innerText = (w.style.display === 'none' ? 'Show ' : 'Hide ') + w.querySelector('.window-header span').innerText;
-        btn.onclick = () => { w.style.display = w.style.display === 'none' ? 'flex' : 'none'; saveLayout(); toggleManager(); };
-        m.appendChild(btn);
-      });
-    };
-
-    window.resetLayout = async () => {
-      await supabase.from('users').update({ dashboard_layout: null }).eq('username', user);
-      location.reload();
-    };
-
-    function updateChart(counts) {
-      const ctx = document.getElementById('priorityChart');
-      if (window.myChart) window.myChart.destroy();
-      window.myChart = new Chart(ctx, {
-        type: 'bar',
-        data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#a53239' }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } } }
-      });
-    }
-
-    async function init() {
-      const { data } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
-      if (data?.dashboard_layout) {
-        Object.keys(data.dashboard_layout).forEach(id => {
-          const w = document.getElementById(id);
-          if (w) Object.assign(w.style, data.dashboard_layout[id]);
+    // --- CHART ENGINE ---
+    function renderChart(counts) {
+        const ctx = document.getElementById('priorityChart').getContext('2d');
+        if (window.myChart) window.myChart.destroy();
+        window.myChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#a53239', borderColor: 'white', borderWidth: 1 }] },
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } } }
         });
-      }
-      loadTasks();
-      setInterval(updateClock, 1000);
-      setInterval(loadTasks, 60000); // Update "time ago" strings
     }
-    init();
-  </script>
+
+    // --- REALTIME UPDATES (Clock & Quotes) ---
+    function updateRealTime() {
+        let n = new Date();
+        document.getElementById('digital').innerText = n.toLocaleTimeString();
+        document.getElementById('sec').style.transform = `rotate(${n.getSeconds()*6}deg)`;
+        document.getElementById('min').style.transform = `rotate(${n.getMinutes()*6}deg)`;
+        document.getElementById('hour').style.transform = `rotate(${(n.getHours()%12)*30 + n.getMinutes()/2}deg)`;
+        
+        let q = quotes[Math.floor(n.getDate() % quotes.length)];
+        document.getElementById('quote-display').innerText = `"${q.t}"`;
+        document.getElementById('author-display').innerText = `- ${q.a}`;
+    }
+
+    // --- WINDOW ENGINE ---
+    let act = null, off = {x:0, y:0};
+    document.addEventListener('mousedown', (e) => {
+        let w = e.target.closest('.window');
+        if (w && !e.target.closest('button')) {
+            act = w; off = {x: e.clientX - w.offsetLeft, y: e.clientY - w.offsetTop};
+            document.querySelectorAll('.window').forEach(x => x.style.zIndex = 1); w.style.zIndex = 10;
+        }
+    });
+    document.addEventListener('mousemove', (e) => { if (act) { act.style.left = (e.clientX - off.x) + 'px'; act.style.top = (e.clientY - off.y) + 'px'; } });
+    document.addEventListener('mouseup', () => { if (act) saveL(); act = null; });
+
+    async function saveL() {
+        let l = {}; document.querySelectorAll('.window').forEach(w => { l[w.id] = {top: w.style.top, left: w.style.left, display: w.style.display}; });
+        await supabase.from('users').update({dashboard_layout: l}).eq('username', user);
+    }
+
+    window.closeWin = (id) => { document.getElementById(id).style.display = 'none'; saveL(); };
+    window.toggleManager = () => {
+        let m = document.getElementById('win-manager');
+        m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        m.innerHTML = '<b style="font-size:10px; margin-bottom:5px; color:rgba(255,255,255,0.5)">APP FOLDERS</b>';
+        document.querySelectorAll('.window').forEach(w => {
+            let b = document.createElement('button');
+            b.style.cssText = "background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); padding:6px; margin:2px; cursor:pointer; font-size:10px; border-radius:4px; text-align:left;";
+            b.innerText = (w.style.display === 'none' ? "[+] " : "[-] ") + w.querySelector('span').innerText;
+            b.onclick = () => { w.style.display = w.style.display === 'none' ? 'flex' : 'none'; saveL(); toggleManager(); };
+            m.appendChild(b);
+        });
+    };
+    window.resetLayout = async () => { await supabase.from('users').update({dashboard_layout: null}).eq('username', user); location.reload(); };
+
+    // --- INITIALIZE ---
+    (async function init() {
+        let {data} = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
+        if (data?.dashboard_layout) Object.keys(data.dashboard_layout).forEach(id => { let w = document.getElementById(id); if (w) Object.assign(w.style, data.dashboard_layout[id]); });
+        loadTasks(); updateRealTime(); setInterval(updateRealTime, 1000); setInterval(loadTasks, 60000);
+    })();
+</script>
 </body>
 </html>
