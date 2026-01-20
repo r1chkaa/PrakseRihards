@@ -2,37 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Free-Move Dashboard</title>
+  <title>Collision Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <button class="reset-btn" onclick="resetLayout()">↺ Reset Layout</button>
+  <button class="reset-btn" onclick="resetLayout()">↺ Reset Workspace</button>
 
   <div id="dashboard-canvas">
-    <div id="win-tasks" class="window" style="top: 10%; left: 5%; width: 350px; height: 450px;">
-      <div class="window-header">My Tasks</div>
+    <div id="win-tasks" class="window" style="top: 50px; left: 50px; width: 300px; height: 400px;">
+      <div class="window-header">Tasks</div>
       <div class="window-content">
         <div class="scroll-area"><table id="task-list"><tbody></tbody></table></div>
-        <button onclick="location.href='save.html'">+ Add Task</button>
+        <button onclick="location.href='save.html'" style="margin-top:10px;">+ Add</button>
       </div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-stats" class="window" style="top: 10%; left: 40%; width: 400px; height: 320px;">
-      <div class="window-header">Priority Stats</div>
-      <div class="window-content">
-        <canvas id="priorityChart"></canvas>
-      </div>
+    <div id="win-stats" class="window" style="top: 50px; left: 400px; width: 400px; height: 300px;">
+      <div class="window-header">Stats</div>
+      <div class="window-content"><canvas id="priorityChart"></canvas></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-clock" class="window" style="top: 45%; left: 40%; width: 280px; height: 350px;">
+    <div id="win-clock" class="window" style="top: 400px; left: 400px; width: 220px; height: 280px;">
       <div class="window-header">Clock</div>
       <div class="window-content">
-        <div id="digital-clock">00:00:00</div>
-        <div class="analog-face" id="clock-face">
+        <div id="digital-clock" style="text-align:center; font-weight:bold;">00:00</div>
+        <div class="analog-face" id="face">
           <div class="hand hour" id="hour-hand"></div>
           <div class="hand min" id="min-hand"></div>
           <div class="hand sec" id="sec-hand"></div>
@@ -46,65 +44,81 @@
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
 
-    // --- CLOCK NUMBERS ---
-    const face = document.getElementById('clock-face');
-    for (let i = 1; i <= 12; i++) {
-      const num = document.createElement('div');
-      num.className = 'number';
-      num.style.transform = `rotate(${i * 30}deg)`;
-      num.innerHTML = `<span style="display:inline-block; transform:rotate(-${i * 30}deg)">${i}</span>`;
-      face.appendChild(num);
+    // Generate Clock Numbers 1-12
+    const face = document.getElementById('face');
+    for(let i=1; i<=12; i++) {
+      let n = document.createElement('div');
+      n.className = 'clock-number';
+      n.style.transform = `rotate(${i*30}deg)`;
+      n.innerHTML = `<span style="display:block; transform:rotate(-${i*30}deg)">${i}</span>`;
+      face.appendChild(n);
     }
 
-    // --- MOVE & RESIZE LOGIC ---
     let activeWin = null, isResizing = false;
-    let startX, startY, startW, startH, startTop, startLeft;
+    let offset = { x: 0, y: 0 };
+
+    // Check for collisions with other windows
+    function isColliding(rect1, id1) {
+      const windows = document.querySelectorAll('.window');
+      for (let win of windows) {
+        if (win.id === id1) continue;
+        const rect2 = win.getBoundingClientRect();
+        if (!(rect1.right < rect2.left || rect1.left > rect2.right || 
+              rect1.bottom < rect2.top || rect1.top > rect2.bottom)) return true;
+      }
+      return false;
+    }
 
     document.addEventListener('mousedown', e => {
       const win = e.target.closest('.window');
       if (!win) return;
-
       activeWin = win;
       document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
       win.style.zIndex = 10;
-
-      if (e.target.classList.contains('resize-handle')) {
-        isResizing = true;
-        startW = win.offsetWidth;
-        startH = win.offsetHeight;
-      } else if (e.target.classList.contains('window-header')) {
-        isResizing = false;
-        startTop = win.offsetTop;
-        startLeft = win.offsetLeft;
-      } else {
-        activeWin = null; return;
-      }
-
-      startX = e.clientX;
-      startY = e.clientY;
-      e.preventDefault();
+      
+      isResizing = e.target.classList.contains('resize-handle');
+      offset.x = e.clientX - win.offsetLeft;
+      offset.y = e.clientY - win.offsetTop;
+      if (!isResizing && !e.target.classList.contains('window-header')) activeWin = null;
     });
 
     document.addEventListener('mousemove', e => {
       if (!activeWin) return;
+      const canvas = document.getElementById('dashboard-canvas').getBoundingClientRect();
+      let newX = activeWin.offsetLeft;
+      let newY = activeWin.offsetTop;
+      let newW = activeWin.offsetWidth;
+      let newH = activeWin.offsetHeight;
+
       if (isResizing) {
-        activeWin.style.width = (startW + (e.clientX - startX)) + 'px';
-        activeWin.style.height = (startH + (e.clientY - startY)) + 'px';
-        if(window.myChart && activeWin.id === 'win-stats') window.myChart.resize();
+        newW = e.clientX - activeWin.getBoundingClientRect().left;
+        newH = e.clientY - activeWin.getBoundingClientRect().top;
       } else {
-        activeWin.style.top = (startTop + (e.clientY - startY)) + 'px';
-        activeWin.style.left = (startLeft + (e.clientX - startX)) + 'px';
+        newX = e.clientX - offset.x;
+        newY = e.clientY - offset.y;
+      }
+
+      // Screen Boundary Check (including the 8px border)
+      if (newX < 8) newX = 8;
+      if (newY < 8) newY = 8;
+      if (newX + newW > window.innerWidth - 8) newX = window.innerWidth - newW - 8;
+      if (newY + newH > window.innerHeight - 8) newY = window.innerHeight - newH - 8;
+
+      // Collision Check (Simple version: allow move, but revert if overlapping)
+      const nextRect = { left: newX, top: newY, right: newX + newW, bottom: newY + newH };
+      if (!isColliding(nextRect, activeWin.id)) {
+        activeWin.style.left = newX + 'px';
+        activeWin.style.top = newY + 'px';
+        activeWin.style.width = newW + 'px';
+        activeWin.style.height = newH + 'px';
       }
     });
 
     document.addEventListener('mouseup', async () => {
       if (!activeWin) return;
       const layout = {};
-      document.querySelectorAll('.window').forEach(win => {
-        layout[win.id] = { 
-          top: win.style.top, left: win.style.left, 
-          width: win.style.width, height: win.style.height 
-        };
+      document.querySelectorAll('.window').forEach(w => {
+        layout[w.id] = { top: w.style.top, left: w.style.left, width: w.style.width, height: w.style.height };
       });
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
       activeWin = null;
@@ -115,13 +129,13 @@
       location.reload();
     };
 
-    // --- DATA & INIT ---
+    // Load Data
     async function init() {
       const { data } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
       if (data?.dashboard_layout) {
         Object.keys(data.dashboard_layout).forEach(id => {
-          const win = document.getElementById(id);
-          if (win) Object.assign(win.style, data.dashboard_layout[id]);
+          const w = document.getElementById(id);
+          if (w) Object.assign(w.style, data.dashboard_layout[id]);
         });
       }
       loadTasks();
@@ -130,13 +144,7 @@
     async function loadTasks() {
       const { data } = await supabase.from('todolist').select('*').eq('username', user);
       const tbody = document.querySelector("#task-list tbody");
-      tbody.innerHTML = "";
-      let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
-      data?.forEach(t => {
-        if(counts[t.svarigums] !== undefined) counts[t.svarigums]++;
-        tbody.innerHTML += `<tr><td>${t.uzd}</td><td style="text-align:right"><button onclick="delTask('${t.id}')">✖</button></td></tr>`;
-      });
-      updateChart(counts);
+      tbody.innerHTML = data.map(t => `<tr><td>${t.uzd}</td><td style="text-align:right"><button onclick="delTask('${t.id}')">✖</button></td></tr>`).join('');
     }
 
     window.delTask = async (id) => {
@@ -144,37 +152,16 @@
       loadTasks();
     };
 
-    function updateChart(counts) {
-      const ctx = document.getElementById('priorityChart');
-      if (window.myChart) window.myChart.destroy();
-      window.myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: Object.keys(counts),
-          datasets: [{ data: Object.values(counts), backgroundColor: '#792429', borderColor: 'white', borderWidth: 1 }]
-        },
-        options: { 
-          maintainAspectRatio: false, 
-          scales: { 
-            y: { beginAtZero: true, ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-            x: { ticks: { color: 'white' }, grid: { display: false } }
-          },
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-
     function runClock() {
       const now = new Date();
       document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
-      const s = now.getSeconds(), m = now.getMinutes(), h = now.getHours();
-      document.getElementById('sec-hand').style.transform = `rotate(${s * 6}deg)`;
-      document.getElementById('min-hand').style.transform = `rotate(${m * 6}deg)`;
-      document.getElementById('hour-hand').style.transform = `rotate(${(h % 12) * 30 + (m / 2)}deg)`;
+      const s = now.getSeconds() * 6, m = now.getMinutes() * 6, h = (now.getHours() % 12) * 30;
+      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
+      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
+      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
     }
 
     setInterval(runClock, 1000);
-    runClock();
     init();
   </script>
 </body>
