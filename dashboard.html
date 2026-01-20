@@ -11,7 +11,7 @@
   <button class="reset-btn" onclick="resetLayout()">↺ Reset Layout</button>
 
   <div id="dashboard-canvas">
-    <div id="win-tasks" class="window" style="top: 50px; left: 50px; width: 350px; height: 450px;">
+    <div id="win-tasks" class="window" style="top: 10%; left: 5%; width: 350px; height: 450px;">
       <div class="window-header">My Tasks</div>
       <div class="window-content">
         <div class="scroll-area"><table id="task-list"><tbody></tbody></table></div>
@@ -20,7 +20,7 @@
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-stats" class="window" style="top: 50px; left: 450px; width: 400px; height: 300px;">
+    <div id="win-stats" class="window" style="top: 10%; left: 40%; width: 400px; height: 320px;">
       <div class="window-header">Priority Stats</div>
       <div class="window-content">
         <canvas id="priorityChart"></canvas>
@@ -28,11 +28,11 @@
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-clock" class="window" style="top: 400px; left: 450px; width: 250px; height: 300px;">
+    <div id="win-clock" class="window" style="top: 45%; left: 40%; width: 280px; height: 350px;">
       <div class="window-header">Clock</div>
       <div class="window-content">
         <div id="digital-clock">00:00:00</div>
-        <div class="analog-face">
+        <div class="analog-face" id="clock-face">
           <div class="hand hour" id="hour-hand"></div>
           <div class="hand min" id="min-hand"></div>
           <div class="hand sec" id="sec-hand"></div>
@@ -46,6 +46,16 @@
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
 
+    // --- CLOCK NUMBERS ---
+    const face = document.getElementById('clock-face');
+    for (let i = 1; i <= 12; i++) {
+      const num = document.createElement('div');
+      num.className = 'number';
+      num.style.transform = `rotate(${i * 30}deg)`;
+      num.innerHTML = `<span style="display:inline-block; transform:rotate(-${i * 30}deg)">${i}</span>`;
+      face.appendChild(num);
+    }
+
     // --- MOVE & RESIZE LOGIC ---
     let activeWin = null, isResizing = false;
     let startX, startY, startW, startH, startTop, startLeft;
@@ -55,7 +65,6 @@
       if (!win) return;
 
       activeWin = win;
-      // Bring clicked window to front
       document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
       win.style.zIndex = 10;
 
@@ -78,22 +87,18 @@
 
     document.addEventListener('mousemove', e => {
       if (!activeWin) return;
-
       if (isResizing) {
-        activeWin.style.width = startW + (e.clientX - startX) + 'px';
-        activeWin.style.height = startH + (e.clientY - startY) + 'px';
+        activeWin.style.width = (startW + (e.clientX - startX)) + 'px';
+        activeWin.style.height = (startH + (e.clientY - startY)) + 'px';
         if(window.myChart && activeWin.id === 'win-stats') window.myChart.resize();
       } else {
-        activeWin.style.top = startTop + (e.clientY - startY) + 'px';
-        activeWin.style.left = startLeft + (e.clientX - startX) + 'px';
+        activeWin.style.top = (startTop + (e.clientY - startY)) + 'px';
+        activeWin.style.left = (startLeft + (e.clientX - startX)) + 'px';
       }
     });
 
-    document.addEventListener('mouseup', saveLayout);
-
-    async function saveLayout() {
+    document.addEventListener('mouseup', async () => {
       if (!activeWin) return;
-      activeWin = null;
       const layout = {};
       document.querySelectorAll('.window').forEach(win => {
         layout[win.id] = { 
@@ -102,7 +107,8 @@
         };
       });
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
-    }
+      activeWin = null;
+    });
 
     window.resetLayout = async () => {
       await supabase.from('users').update({ dashboard_layout: null }).eq('username', user);
@@ -128,7 +134,7 @@
       let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
       data?.forEach(t => {
         if(counts[t.svarigums] !== undefined) counts[t.svarigums]++;
-        tbody.innerHTML += `<tr><td>${t.uzd}</td><td><button onclick="delTask('${t.id}')">✖</button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${t.uzd}</td><td style="text-align:right"><button onclick="delTask('${t.id}')">✖</button></td></tr>`;
       });
       updateChart(counts);
     }
@@ -145,22 +151,30 @@
         type: 'bar',
         data: {
           labels: Object.keys(counts),
-          datasets: [{ data: Object.values(counts), backgroundColor: '#792429' }]
+          datasets: [{ data: Object.values(counts), backgroundColor: '#792429', borderColor: 'white', borderWidth: 1 }]
         },
-        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: 'white' } } } }
+        options: { 
+          maintainAspectRatio: false, 
+          scales: { 
+            y: { beginAtZero: true, ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+            x: { ticks: { color: 'white' }, grid: { display: false } }
+          },
+          plugins: { legend: { display: false } }
+        }
       });
     }
 
     function runClock() {
       const now = new Date();
       document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
-      const s = now.getSeconds() * 6, m = now.getMinutes() * 6, h = (now.getHours() % 12) * 30;
-      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
-      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
-      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
+      const s = now.getSeconds(), m = now.getMinutes(), h = now.getHours();
+      document.getElementById('sec-hand').style.transform = `rotate(${s * 6}deg)`;
+      document.getElementById('min-hand').style.transform = `rotate(${m * 6}deg)`;
+      document.getElementById('hour-hand').style.transform = `rotate(${(h % 12) * 30 + (m / 2)}deg)`;
     }
 
     setInterval(runClock, 1000);
+    runClock();
     init();
   </script>
 </body>
