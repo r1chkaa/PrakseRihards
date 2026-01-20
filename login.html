@@ -1,22 +1,41 @@
-<div class="form">
-  <h1>Login</h1>
-  <input id="user" type="text" placeholder="Username">
-  <input id="pass" type="password" placeholder="Password">
-  <button id="loginBtn">Sign In</button>
-  <p>Need an account? <a href="register.html" style="color:white">Register</a></p>
-</div>
-<script type="module">
-  import { supabase } from './supabase.js';
-  document.getElementById("loginBtn").onclick = async () => {
-    const u = document.getElementById("user").value;
-    const p = document.getElementById("pass").value;
-    const { data } = await supabase.from('users').select('*').eq('username', u).eq('password', p).maybeSingle();
-    
-    if (data) {
-      localStorage.setItem("username", u);
-      location.href = 'index.html';
-    } else {
-      alert("Invalid login!");
-    }
-  };
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="form">
+    <h1>Login</h1>
+    <input id="username" type="text" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button id="loginBtn">Login</button>
+    <p>New? <a href="register.html">Register here</a></p>
+    <p id="message" style="color: #ff4d4d; margin-top: 10px;"></p>
+  </div>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    document.getElementById("loginBtn").onclick = async () => {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      const msg = document.getElementById("message");
+
+      const { data, error } = await supabase.from('users')
+        .select('*')
+        .eq('username', user)
+        .eq('password', pass)
+        .maybeSingle();
+
+      if (data) {
+        localStorage.setItem("username", user);
+        location.href = 'index.html';
+      } else {
+        msg.innerText = "Invalid credentials";
+      }
+    };
+  </script>
+</body>
+</html>
