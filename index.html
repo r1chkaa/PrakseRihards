@@ -3,55 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>My Productivity Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/gridstack@10.0.1/dist/gridstack.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gridstack@10.0.1/dist/gridstack-all.js"></script>
 </head>
 <body>
-  <div class="main-layout">
-    
-    <div class="container todo-section">
-      <h2>My Tasks</h2>
-      <div class="pulley-container"> 
-        <table id="list">
-          <thead>
-            <tr>
-              <th>Task</th>
-              <th>Priority</th>
-              <th>Done</th>
-              <th>Time</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <button onclick="location.href='save.html'" style="margin-top:15px;">+ Add Task</button>
-      <button onclick="localStorage.clear(); location.href='login.html';" class="secondary" style="margin-top:10px;">Logout</button>
-    </div>
 
-    <div class="container chart-section">
-      <h3>Priority Stats</h3>
-      <canvas id="priorityChart"></canvas>
-    </div>
-
-    <div class="container clock-section">
-      <div id="digital-clock" style="font-size: 1.5rem; margin-bottom: 15px; font-weight: bold;">00:00:00</div>
-      <div class="analog-face">
-        <div class="hand hour" id="hour-hand"></div>
-        <div class="hand min" id="min-hand"></div>
-        <div class="hand sec" id="sec-hand"></div>
+  <div class="grid-stack">
+    <div class="grid-stack-item" gs-id="todo" gs-x="0" gs-y="0" gs-w="4" gs-h="4">
+      <div class="grid-stack-item-content container todo-section">
+        <h2 class="drag-handle">My Tasks</h2>
+        <div class="pulley-container">
+          <table id="list">
+            <thead><tr><th>Task</th><th>Priority</th><th>Done</th><th>Time</th><th>Action</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button onclick="location.href='save.html'" style="margin-top:10px;">+ Add Task</button>
       </div>
     </div>
 
-  </div>
+    <div class="grid-stack-item" gs-id="chart" gs-x="4" gs-y="0" gs-w="4" gs-h="4">
+      <div class="grid-stack-item-content container chart-section">
+        <h3 class="drag-handle">Priority Stats</h3>
+        <canvas id="priorityChart"></canvas>
+      </div>
+    </div>
 
-  <div id="deleteModal" class="modal-overlay">
-    <div class="modal">
-      <h3 style="color: black;">Delete Task?</h3>
-      <p style="color: #333;">This cannot be undone.</p>
-      <div style="display:flex; gap:10px; justify-content:center;">
-        <button id="confirmBtn" style="background:red; width: auto;">Delete</button>
-        <button onclick="closeModal()" class="secondary" style="width: auto;">Cancel</button>
+    <div class="grid-stack-item" gs-id="clock" gs-x="8" gs-y="0" gs-w="3" gs-h="4">
+      <div class="grid-stack-item-content container clock-section">
+        <h3 class="drag-handle">Clock</h3>
+        <div id="digital-clock">00:00:00</div>
+        <div class="analog-face">
+          <div class="hand hour" id="hour-hand"></div>
+          <div class="hand min" id="min-hand"></div>
+          <div class="hand sec" id="sec-hand"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -61,110 +49,34 @@
     const user = localStorage.getItem("username");
     if (!user) location.href = "login.html";
 
-    let taskToDeleteId = null;
-    let myChart = null;
+    // 1. Initialize GridStack
+    const grid = GridStack.init({
+      cellHeight: 100,
+      margin: 10,
+      handle: '.drag-handle', // Drag only by the header
+      resizable: { handles: 'se' } // Resize from bottom-right
+    });
 
-    function getTimeAgo(dateString) {
-      const now = new Date();
-      const past = new Date(dateString);
-      const diffInSecs = Math.floor((now - past) / 1000);
-      if (diffInSecs < 60) return "now";
-      const mins = Math.floor(diffInSecs / 60);
-      if (mins < 60) return `${mins} min ago`;
-      const hours = Math.floor(mins / 60);
-      if (hours < 24) return `${hours}h ago`;
-      const days = Math.floor(hours / 24);
-      if (days < 7) return `${days}d ago`;
-      const weeks = Math.floor(days / 7);
-      if (weeks < 4) return `${weeks}w ago`;
-      const months = Math.floor(days / 30);
-      if (months < 12) return `${months}m ago`;
-      return `${Math.floor(days / 365)}y ago`;
+    // 2. Load Layout from Supabase
+    async function loadLayout() {
+      const { data } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
+      if (data?.dashboard_layout) {
+        grid.load(data.dashboard_layout);
+      }
+      load(); // Load your tasks/chart/clock data
     }
 
-    async function load() {
-      const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', { ascending: false });
-      const tbody = document.querySelector("#list tbody");
-      tbody.innerHTML = "";
-      
-      const counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
+    // 3. Save Layout when windows stop moving/resizing
+    grid.on('change', async () => {
+      const layout = grid.save();
+      await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
+    });
 
-      data?.forEach(t => {
-        if (counts.hasOwnProperty(t.svarigums)) counts[t.svarigums]++;
-        
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${t.uzd}</td>
-          <td>${t.svarigums}</td>
-          <td><input type="checkbox" ${t.pabeigts ? 'checked' : ''} onchange="toggleDone('${t.id}', this.checked)"></td>
-          <td style="font-size:0.8em; opacity:0.8;">${getTimeAgo(t.created_at)}</td>
-          <td><button class="del-trigger" style="width:auto; padding:5px 10px; background:red; border:none; border-radius:4px; color:white; cursor:pointer;">✖</button></td>
-        `;
+    // ... Keep your existing load(), updateChart(), and runClock() functions here ...
+    // Note: Use 'loadLayout()' instead of 'load()' at the very end of your script.
 
-        tr.querySelector(".del-trigger").onclick = () => {
-          taskToDeleteId = t.id;
-          document.getElementById("deleteModal").style.display = "flex";
-        };
-        tbody.appendChild(tr);
-      });
-      updateChart(counts);
-    }
-
-    window.toggleDone = async (id, val) => {
-      await supabase.from("todolist").update({ pabeigts: val }).eq("id", id);
-      load();
-    };
-
-    function updateChart(counts) {
-      const ctx = document.getElementById('priorityChart').getContext('2d');
-      if (myChart) myChart.destroy();
-      myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Urgent', 'This week', 'This month', 'Anytime'],
-          datasets: [{
-            data: [counts.Urgent, counts["This week"], counts["This month"], counts.Anytime],
-            backgroundColor: ['#ff4d4d', '#ff944d', '#4db8ff', '#4dff88']
-          }]
-        },
-        options: { 
-            plugins: { legend: { display: false } }, 
-            scales: { 
-                y: { beginAtZero: true, ticks: { color: 'white' } },
-                x: { ticks: { color: 'white' } }
-            } 
-        }
-      });
-    }
-
-    function runClock() {
-      const now = new Date();
-      document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
-      
-      const s = now.getSeconds();
-      const m = now.getMinutes();
-      const h = now.getHours();
-
-      const sDeg = s * 6;
-      const mDeg = (m * 6) + (s * 0.1);
-      const hDeg = ((h % 12) * 30) + (m * 0.5);
-
-      document.getElementById('sec-hand').style.transform = `rotate(${sDeg}deg)`;
-      document.getElementById('min-hand').style.transform = `rotate(${mDeg}deg)`;
-      document.getElementById('hour-hand').style.transform = `rotate(${hDeg}deg)`;
-    }
-
-    document.getElementById("confirmBtn").onclick = async () => {
-      await supabase.from("todolist").delete().eq("id", taskToDeleteId);
-      closeModal();
-      load();
-    };
-
-    window.closeModal = () => document.getElementById("deleteModal").style.display = "none";
-
+    loadLayout();
     setInterval(runClock, 1000);
-    runClock();
-    load();
   </script>
 </body>
 </html>
