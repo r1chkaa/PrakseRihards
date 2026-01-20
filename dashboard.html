@@ -2,35 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/gridstack@10.0.1/dist/gridstack.min.css" rel="stylesheet"/>
+  <title>Free-Move Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gridstack@10.0.1/dist/gridstack-all.js"></script>
 </head>
 <body>
 
-  <button class="reset-btn" onclick="hardReset()">↺ Reset Layout</button>
+  <button class="reset-btn" onclick="resetLayout()">↺ Reset Layout</button>
 
-  <div class="grid-stack">
-    <div class="grid-stack-item" gs-id="todo" gs-x="0" gs-y="0" gs-w="30" gs-h="15">
-      <div class="grid-stack-item-content container todo-section">
-        <h2 class="drag-handle">Tasks</h2>
-        <div class="pulley-container"><table id="list"><tbody></tbody></table></div>
-        <button onclick="location.href='save.html'">+ Add</button>
+  <div id="dashboard-canvas">
+    <div id="win-tasks" class="window" style="top: 50px; left: 50px; width: 350px; height: 450px;">
+      <div class="window-header">My Tasks</div>
+      <div class="window-content">
+        <div class="scroll-area"><table id="task-list"><tbody></tbody></table></div>
+        <button onclick="location.href='save.html'">+ Add Task</button>
       </div>
+      <div class="resize-handle"></div>
     </div>
 
-    <div class="grid-stack-item" gs-id="chart" gs-x="30" gs-y="0" gs-w="40" gs-h="12">
-      <div class="grid-stack-item-content container chart-section">
-        <h3 class="drag-handle">Stats</h3>
-        <div class="chart-wrapper"><canvas id="priorityChart"></canvas></div>
+    <div id="win-stats" class="window" style="top: 50px; left: 450px; width: 400px; height: 300px;">
+      <div class="window-header">Priority Stats</div>
+      <div class="window-content">
+        <canvas id="priorityChart"></canvas>
       </div>
+      <div class="resize-handle"></div>
     </div>
 
-    <div class="grid-stack-item" gs-id="clock" gs-x="70" gs-y="0" gs-w="25" gs-h="12">
-      <div class="grid-stack-item-content container clock-section">
-        <h3 class="drag-handle">Clock</h3>
+    <div id="win-clock" class="window" style="top: 400px; left: 450px; width: 250px; height: 300px;">
+      <div class="window-header">Clock</div>
+      <div class="window-content">
         <div id="digital-clock">00:00:00</div>
         <div class="analog-face">
           <div class="hand hour" id="hour-hand"></div>
@@ -38,54 +38,97 @@
           <div class="hand sec" id="sec-hand"></div>
         </div>
       </div>
+      <div class="resize-handle"></div>
     </div>
   </div>
 
   <script type="module">
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
-    
-    // Grid Setup
-    const grid = GridStack.init({
-      column: 100,
-      cellHeight: '40px',
-      margin: 10,
-      disableOneColumnMode: true, // STOP SQUISHING
-      float: true,
-      handle: '.drag-handle',
-      resizable: { handles: 'se' }
+
+    // --- MOVE & RESIZE LOGIC ---
+    let activeWin = null, isResizing = false;
+    let startX, startY, startW, startH, startTop, startLeft;
+
+    document.addEventListener('mousedown', e => {
+      const win = e.target.closest('.window');
+      if (!win) return;
+
+      activeWin = win;
+      // Bring clicked window to front
+      document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
+      win.style.zIndex = 10;
+
+      if (e.target.classList.contains('resize-handle')) {
+        isResizing = true;
+        startW = win.offsetWidth;
+        startH = win.offsetHeight;
+      } else if (e.target.classList.contains('window-header')) {
+        isResizing = false;
+        startTop = win.offsetTop;
+        startLeft = win.offsetLeft;
+      } else {
+        activeWin = null; return;
+      }
+
+      startX = e.clientX;
+      startY = e.clientY;
+      e.preventDefault();
     });
 
-    // Hard Reset Logic
-    window.hardReset = async () => {
-      if(confirm("This will force the windows to their original positions. Proceed?")) {
-        await supabase.from('users').update({ dashboard_layout: null }).eq('username', user);
-        window.location.reload();
+    document.addEventListener('mousemove', e => {
+      if (!activeWin) return;
+
+      if (isResizing) {
+        activeWin.style.width = startW + (e.clientX - startX) + 'px';
+        activeWin.style.height = startH + (e.clientY - startY) + 'px';
+        if(window.myChart && activeWin.id === 'win-stats') window.myChart.resize();
+      } else {
+        activeWin.style.top = startTop + (e.clientY - startY) + 'px';
+        activeWin.style.left = startLeft + (e.clientX - startX) + 'px';
       }
+    });
+
+    document.addEventListener('mouseup', saveLayout);
+
+    async function saveLayout() {
+      if (!activeWin) return;
+      activeWin = null;
+      const layout = {};
+      document.querySelectorAll('.window').forEach(win => {
+        layout[win.id] = { 
+          top: win.style.top, left: win.style.left, 
+          width: win.style.width, height: win.style.height 
+        };
+      });
+      await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
+    }
+
+    window.resetLayout = async () => {
+      await supabase.from('users').update({ dashboard_layout: null }).eq('username', user);
+      location.reload();
     };
 
-    grid.on('change', async () => {
-      const layout = grid.save();
-      await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
-    });
-
+    // --- DATA & INIT ---
     async function init() {
       const { data } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
       if (data?.dashboard_layout) {
-        grid.load(data.dashboard_layout);
+        Object.keys(data.dashboard_layout).forEach(id => {
+          const win = document.getElementById(id);
+          if (win) Object.assign(win.style, data.dashboard_layout[id]);
+        });
       }
       loadTasks();
     }
 
     async function loadTasks() {
       const { data } = await supabase.from('todolist').select('*').eq('username', user);
-      const tbody = document.querySelector("#list tbody");
+      const tbody = document.querySelector("#task-list tbody");
       tbody.innerHTML = "";
       let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
-      
       data?.forEach(t => {
         if(counts[t.svarigums] !== undefined) counts[t.svarigums]++;
-        tbody.innerHTML += `<tr><td>${t.uzd}</td><td>${t.svarigums}</td><td><button onclick="delTask('${t.id}')">✖</button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${t.uzd}</td><td><button onclick="delTask('${t.id}')">✖</button></td></tr>`;
       });
       updateChart(counts);
     }
@@ -102,7 +145,7 @@
         type: 'bar',
         data: {
           labels: Object.keys(counts),
-          datasets: [{ data: Object.values(counts), backgroundColor: '#ff4d4d' }]
+          datasets: [{ data: Object.values(counts), backgroundColor: '#792429' }]
         },
         options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: 'white' } } } }
       });
