@@ -11,7 +11,8 @@
     
     <div class="container todo-section">
       <h2>My Tasks</h2>
-      <div class="pulley-container"> <table id="list">
+      <div class="pulley-container"> 
+        <table id="list">
           <thead>
             <tr>
               <th>Task</th>
@@ -34,7 +35,7 @@
     </div>
 
     <div class="container clock-section">
-      <div id="digital-clock">00:00:00</div>
+      <div id="digital-clock" style="font-size: 1.5rem; margin-bottom: 15px; font-weight: bold;">00:00:00</div>
       <div class="analog-face">
         <div class="hand hour" id="hour-hand"></div>
         <div class="hand min" id="min-hand"></div>
@@ -46,11 +47,11 @@
 
   <div id="deleteModal" class="modal-overlay">
     <div class="modal">
-      <h3>Delete Task?</h3>
-      <p>This cannot be undone.</p>
+      <h3 style="color: black;">Delete Task?</h3>
+      <p style="color: #333;">This cannot be undone.</p>
       <div style="display:flex; gap:10px; justify-content:center;">
-        <button id="confirmBtn" style="background:red;">Delete</button>
-        <button onclick="closeModal()" class="secondary">Cancel</button>
+        <button id="confirmBtn" style="background:red; width: auto;">Delete</button>
+        <button onclick="closeModal()" class="secondary" style="width: auto;">Cancel</button>
       </div>
     </div>
   </div>
@@ -63,12 +64,10 @@
     let taskToDeleteId = null;
     let myChart = null;
 
-    // "Time Ago" Logic for your Time cell
     function getTimeAgo(dateString) {
       const now = new Date();
       const past = new Date(dateString);
       const diffInSecs = Math.floor((now - past) / 1000);
-
       if (diffInSecs < 60) return "now";
       const mins = Math.floor(diffInSecs / 60);
       if (mins < 60) return `${mins} min ago`;
@@ -91,7 +90,6 @@
       const counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
 
       data?.forEach(t => {
-        // Count for the diagram
         if (counts.hasOwnProperty(t.svarigums)) counts[t.svarigums]++;
         
         const tr = document.createElement("tr");
@@ -100,7 +98,7 @@
           <td>${t.svarigums}</td>
           <td><input type="checkbox" ${t.pabeigts ? 'checked' : ''} onchange="toggleDone('${t.id}', this.checked)"></td>
           <td style="font-size:0.8em; opacity:0.8;">${getTimeAgo(t.created_at)}</td>
-          <td><button class="del-trigger" style="width:auto; padding:5px 10px; background:red;">✖</button></td>
+          <td><button class="del-trigger" style="width:auto; padding:5px 10px; background:red; border:none; border-radius:4px; color:white; cursor:pointer;">✖</button></td>
         `;
 
         tr.querySelector(".del-trigger").onclick = () => {
@@ -109,7 +107,6 @@
         };
         tbody.appendChild(tr);
       });
-
       updateChart(counts);
     }
 
@@ -130,22 +127,31 @@
             backgroundColor: ['#ff4d4d', '#ff944d', '#4db8ff', '#4dff88']
           }]
         },
-        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        options: { 
+            plugins: { legend: { display: false } }, 
+            scales: { 
+                y: { beginAtZero: true, ticks: { color: 'white' } },
+                x: { ticks: { color: 'white' } }
+            } 
+        }
       });
     }
 
-    // Working Clock Logic
     function runClock() {
       const now = new Date();
       document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
       
-      const s = now.getSeconds() * 6;
-      const m = now.getMinutes() * 6;
-      const h = (now.getHours() % 12) * 30 + (m / 12);
+      const s = now.getSeconds();
+      const m = now.getMinutes();
+      const h = now.getHours();
 
-      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
-      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
-      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
+      const sDeg = s * 6;
+      const mDeg = (m * 6) + (s * 0.1);
+      const hDeg = ((h % 12) * 30) + (m * 0.5);
+
+      document.getElementById('sec-hand').style.transform = `rotate(${sDeg}deg)`;
+      document.getElementById('min-hand').style.transform = `rotate(${mDeg}deg)`;
+      document.getElementById('hour-hand').style.transform = `rotate(${hDeg}deg)`;
     }
 
     document.getElementById("confirmBtn").onclick = async () => {
@@ -157,6 +163,7 @@
     window.closeModal = () => document.getElementById("deleteModal").style.display = "none";
 
     setInterval(runClock, 1000);
+    runClock();
     load();
   </script>
 </body>
