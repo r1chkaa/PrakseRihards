@@ -12,7 +12,7 @@
 <body>
 
   <div class="grid-stack">
-    <div class="grid-stack-item" gs-id="todo" gs-x="0" gs-y="0" gs-w="15" gs-h="30">
+    <div class="grid-stack-item" gs-id="todo" gs-x="0" gs-y="0" gs-w="18" gs-h="35">
       <div class="grid-stack-item-content container todo-section">
         <h2 class="drag-handle">My Tasks</h2>
         <div class="pulley-container">
@@ -34,7 +34,7 @@
       </div>
     </div>
 
-    <div class="grid-stack-item" gs-id="chart" gs-x="15" gs-y="0" gs-w="15" gs-h="30">
+    <div class="grid-stack-item" gs-id="chart" gs-x="18" gs-y="0" gs-w="18" gs-h="25">
       <div class="grid-stack-item-content container chart-section">
         <h3 class="drag-handle">Priority Stats</h3>
         <div class="chart-wrapper">
@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <div class="grid-stack-item" gs-id="clock" gs-x="30" gs-y="0" gs-w="15" gs-h="30">
+    <div class="grid-stack-item" gs-id="clock" gs-x="36" gs-y="0" gs-w="14" gs-h="25">
       <div class="grid-stack-item-content container clock-section">
         <h3 class="drag-handle">Clock</h3>
         <div id="digital-clock">00:00:00</div>
@@ -63,7 +63,7 @@
 
     let myChart = null;
 
-    // 1. Initialize High-Density GridStack (50 columns for free movement)
+    // 1. Initialize High-Density GridStack
     const grid = GridStack.init({
       column: 50,
       cellHeight: 10,
@@ -77,8 +77,12 @@
     async function initialize() {
       try {
         const { data: userData } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
-        if (userData?.dashboard_layout) {
+        
+        // Critical: Only load if the saved layout matches the current 50-column density
+        if (userData?.dashboard_layout && userData.dashboard_layout.column === 50) {
           grid.load(userData.dashboard_layout);
+        } else {
+          console.log("Old layout detected or first run. Using defaults.");
         }
       } catch (err) { console.log("Default layout used."); }
       
@@ -91,11 +95,9 @@
       const layout = grid.save();
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
       
-      // Force Chart to fill new window size
       if (myChart) myChart.resize();
     });
 
-    // --- Data Functions ---
     async function loadData() {
       const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', { ascending: false });
       const tbody = document.querySelector("#list tbody");
@@ -110,7 +112,7 @@
           <td>${t.uzd}</td>
           <td>${t.svarigums}</td>
           <td><input type="checkbox" ${t.pabeigts ? 'checked' : ''} onchange="toggleDone('${t.id}', this.checked)"></td>
-          <td style="font-size:0.75rem; opacity:0.7;">${new Date(t.created_at).toLocaleDateString()}</td>
+          <td style="font-size:0.7rem; opacity:0.7;">${new Date(t.created_at).toLocaleDateString()}</td>
           <td><button onclick="delTask('${t.id}')" style="width:auto; padding:2px 6px; background:#792429; border-radius:4px;">✖</button></td>
         `;
         tbody.appendChild(tr);
@@ -144,6 +146,7 @@
         },
         options: {
           maintainAspectRatio: false,
+          responsive: true,
           plugins: { legend: { display: false } },
           scales: { 
             y: { beginAtZero: true, ticks: { color: 'white', font: { size: 10 } } },
