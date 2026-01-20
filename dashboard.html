@@ -15,11 +15,22 @@
   </div>
 
   <div id="dashboard-canvas">
-    <div id="win-tasks" class="window" style="top:40px; left:40px; width:320px; height:400px;">
+    <div id="win-tasks" class="window" style="top:40px; left:40px; width:320px; height:450px;">
       <div class="window-header"><span>ALL TASKS</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
       <div class="window-content">
+        <select id="task-filter" onchange="loadTasks()" style="color: black; background: rgba(255, 255, 255, 0.9); margin-bottom: 10px; padding: 5px; border-radius: 5px; width: 100%;">
+          <option value="All" style="color: black;">All Categories</option>
+          <option value="Personal" style="color: black;">Personal</option>
+          <option value="Work" style="color: black;">Work</option>
+          <option value="School" style="color: black;">School</option>
+          <option value="Event" style="color: black;">Event</option>
+          <option value="Holidays" style="color: black;">Holidays</option>
+          <option value="Home" style="color: black;">Home</option>
+          <option value="Shopping" style="color: black;">Shopping</option>
+        </select>
+
         <div style="flex:1; overflow-y:auto;"><table id="list-all"><tbody></tbody></table></div>
-        <button onclick="location.href='save.html'">+ Add Task</button>
+        <button onclick="location.href='save.html'" style="margin-top:10px;">+ Add Task</button>
       </div>
       <div class="resize-handle"></div>
     </div>
@@ -139,15 +150,29 @@
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
     }
 
-    async function loadTasks() {
+    // --- UPDATED LOAD TASKS WITH FILTER ---
+    window.loadTasks = async function() {
+      const filterValue = document.getElementById('task-filter').value;
       const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
+      
       const ids = { 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
       document.querySelectorAll('table tbody').forEach(b => b.innerHTML = "");
+      
       let counts = { Urgent:0, "This week":0, "This month":0, Anytime:0 };
+      
       data?.forEach(t => {
         const row = `<tr><td><b>${t.uzd}</b><span class="time-text">${timeAgo(t.created_at)}</span></td><td style="text-align:right"><button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer;">✖</button></td></tr>`;
-        document.querySelector("#list-all tbody").innerHTML += row;
-        if(ids[t.svarigums]) { document.querySelector(ids[t.svarigums] + " tbody").innerHTML += row; counts[t.svarigums]++; }
+        
+        // Apply filter to "All Tasks" window
+        if (filterValue === "All" || t.uzdveids === filterValue) {
+            document.querySelector("#list-all tbody").innerHTML += row;
+        }
+
+        // Keep category windows functioning as normal
+        if(ids[t.svarigums]) { 
+            document.querySelector(ids[t.svarigums] + " tbody").innerHTML += row; 
+            counts[t.svarigums]++; 
+        }
       });
       updateChart(counts);
     }
