@@ -23,7 +23,7 @@ body {
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-  overflow: hidden; /* No pulleys */
+  overflow: hidden; 
 }
 
 /* Custom Resize Handle: ) ) */
@@ -83,7 +83,7 @@ body {
 /* Analog Clock Scaling */
 #digital-clock { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-align: center; }
 .analog-face {
-  width: 85%;
+  width: 80%;
   aspect-ratio: 1 / 1;
   border: 3px solid white;
   border-radius: 50%;
