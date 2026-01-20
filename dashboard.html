@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Task Dashboard</title>
+  <title>Full Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -23,6 +23,18 @@
       </div>
     </div>
 
+    <div id="win-clock" class="window" style="top:320px; left:380px; width:220px; height:280px;">
+      <div class="window-header"><span>CLOCK</span><button class="close-btn" onclick="closeWin('win-clock')">×</button></div>
+      <div class="window-content">
+        <div id="digital-clock" style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:1.1rem;">00:00:00</div>
+        <div class="analog-face">
+          <div class="hand hour" id="hour-hand"></div>
+          <div class="hand min" id="min-hand"></div>
+          <div class="hand sec" id="sec-hand"></div>
+        </div>
+      </div>
+    </div>
+
     <div id="win-stats" class="window" style="top:20px; left:380px; width:380px; height:280px;">
       <div class="window-header"><span>STATS</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
       <div class="window-content"><canvas id="priorityChart"></canvas></div>
@@ -37,15 +49,14 @@
       <div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
       <div class="window-content"><table><tbody id="list-week"></tbody></table></div>
     </div>
-    
-    </div>
+  </div>
 
   <script type="module">
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
     if(!user) location.href = "login.html";
 
-    // --- TIME CALCULATION ---
+    // --- RELATIVE TIME ---
     function getTimeAgo(dateString) {
       const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
       if (seconds < 60) return seconds + "s ago";
@@ -54,24 +65,33 @@
       return Math.floor(seconds / 86400) + "d ago";
     }
 
-    // --- DATA LOADING ---
+    // --- CLOCK LOGIC ---
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
+      const s = now.getSeconds() * 6, m = now.getMinutes() * 6, h = (now.getHours() % 12) * 30 + (m / 12);
+      document.getElementById('sec-hand').style.transform = `rotate(${s}deg)`;
+      document.getElementById('min-hand').style.transform = `rotate(${m}deg)`;
+      document.getElementById('hour-hand').style.transform = `rotate(${h}deg)`;
+    }
+
+    // --- TASK LOADING ---
     async function loadTasks() {
       const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
-      const ids = { 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month', 'Anytime': '#list-anytime' };
+      const ids = { 'Urgent': '#list-urgent', 'This week': '#list-week' };
       
       document.querySelectorAll('table tbody').forEach(tb => tb.innerHTML = "");
       let counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
 
       data?.forEach(t => {
-        const timeStr = getTimeAgo(t.created_at);
         const row = `
           <tr>
             <td>
               <div class="task-container">
-                <span><span class="pulley"></span><span class="task-text">${t.uzd}</span></span>
+                <span><span class="pulley"></span><b>${t.uzd}</b></span>
                 <button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer;">✖</button>
               </div>
-              <span class="time-text">${timeStr}</span>
+              <span class="time-text">${getTimeAgo(t.created_at)}</span>
             </td>
           </tr>`;
 
@@ -120,7 +140,7 @@
     window.toggleManager = () => {
       const m = document.getElementById('win-manager');
       m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-      m.innerHTML = '<b style="padding-bottom:5px;">Windows</b>';
+      m.innerHTML = '<b>Windows</b>';
       document.querySelectorAll('.window').forEach(w => {
         const btn = document.createElement('button');
         btn.className = 'win-toggle';
@@ -154,7 +174,8 @@
         });
       }
       loadTasks();
-      setInterval(loadTasks, 60000); // Update "time ago" every minute
+      setInterval(updateClock, 1000);
+      setInterval(loadTasks, 60000); // Update "time ago" strings
     }
     init();
   </script>
