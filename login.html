@@ -2,40 +2,115 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Productivity Dashboard</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Specific styling for the login card to make it look like a dashboard window */
+    .login-box {
+      width: 100%;
+      max-width: 400px;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    input[type="text"], 
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      border-color: #ff4d4d;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-footer {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .form-footer a {
+      color: #ff4d4d;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
-  <div class="form">
-    <h1>Login</h1>
+
+  <div class="login-box container">
+    <h1 style="margin-top: 0; letter-spacing: 2px;">LOGIN</h1>
+    
     <input id="username" type="text" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
-    <button id="loginBtn">Login</button>
-    <p>New? <a href="register.html">Register here</a></p>
-    <p id="message" style="color: #ff4d4d; margin-top: 10px;"></p>
+    
+    <button id="loginBtn" style="margin-top: 10px;">Sign In</button>
+    
+    <p id="message" style="color: #ff4d4d; margin-top: 15px; font-weight: bold; min-height: 20px;"></p>
+
+    <div class="form-footer">
+      <p>New here? <a href="register.html">Create an account</a></p>
+      <p><a href="index.html" style="color: white; opacity: 0.6; font-weight: normal; font-size: 0.8rem;">← Back to Welcome</a></p>
+    </div>
   </div>
 
   <script type="module">
     import { supabase } from './supabase.js';
 
-    document.getElementById("loginBtn").onclick = async () => {
-      const user = document.getElementById("username").value;
+    // Function to handle login
+    const handleLogin = async () => {
+      const user = document.getElementById("username").value.trim();
       const pass = document.getElementById("password").value;
       const msg = document.getElementById("message");
 
-      const { data, error } = await supabase.from('users')
-        .select('*')
-        .eq('username', user)
-        .eq('password', pass)
-        .maybeSingle();
+      if (!user || !pass) {
+        msg.innerText = "Please fill in all fields";
+        return;
+      }
 
-      if (data) {
-        localStorage.setItem("username", user);
-        location.href = 'dashboard.html';
-      } else {
-        msg.innerText = "Invalid credentials";
+      msg.innerText = "Checking credentials...";
+
+      try {
+        const { data, error } = await supabase.from('users')
+          .select('*')
+          .eq('username', user)
+          .eq('password', pass)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          localStorage.setItem("username", user);
+          location.href = 'dashboard.html';
+        } else {
+          msg.innerText = "Invalid username or password";
+        }
+      } catch (err) {
+        msg.innerText = "Error connecting to database";
+        console.error(err);
       }
     };
+
+    // Trigger on button click
+    document.getElementById("loginBtn").onclick = handleLogin;
+
+    // Trigger on 'Enter' key
+    window.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
   </script>
 </body>
 </html>
