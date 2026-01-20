@@ -6,106 +6,72 @@ body {
   font-family: 'Segoe UI', sans-serif;
   color: white;
   overflow: hidden;
-  /* Page edge border */
-  border: 8px solid rgba(255, 255, 255, 0.1);
+  /* Page edge border as requested */
+  border: 8px solid rgba(255, 255, 255, 0.4);
   box-sizing: border-box;
 }
 
 #dashboard-canvas {
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 16px); /* Account for 8px top/bottom border */
   position: relative;
 }
 
-/* Window Style Fix */
 .window {
   position: absolute;
-  /* Restored Background */
-  background: rgba(40, 12, 14, 0.9); 
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border-radius: 12px;
-  /* Visible White Border */
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(40, 12, 14, 0.95); /* Solid background back */
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.6); /* Thick window borders */
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   min-width: 200px;
   min-height: 150px;
-  touch-action: none;
   z-index: 1;
 }
 
 .window-header {
-  padding: 12px;
-  background: rgba(121, 36, 41, 0.9);
-  border-radius: 12px 12px 0 0;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  background: #792429;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
   cursor: grab;
-  font-size: 0.8rem;
   font-weight: bold;
-  text-transform: uppercase;
   user-select: none;
 }
 
-.window-content {
-  flex: 1;
-  padding: 15px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
+.window-content { flex: 1; padding: 15px; overflow: hidden; display: flex; flex-direction: column; }
 
 .resize-handle {
-  width: 20px;
-  height: 20px;
-  position: absolute;
-  right: 0;
-  bottom: 0;
+  width: 15px; height: 15px;
+  position: absolute; right: 0; bottom: 0;
   cursor: nwse-resize;
-  background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.3) 50%);
-  border-radius: 0 0 12px 0;
+  background: rgba(255,255,255,0.3);
 }
 
-/* Clock Styling */
-#digital-clock { font-size: 1.2rem; text-align: center; margin-bottom: 10px; font-weight: bold; }
-
+/* Analog Clock with Numbers */
 .analog-face {
-  width: 180px;
-  height: 180px;
-  border: 3px solid white;
-  border-radius: 50%;
-  position: relative;
-  margin: auto;
-  background: rgba(255,255,255,0.05);
+  width: 160px; height: 160px;
+  border: 3px solid white; border-radius: 50%;
+  position: relative; margin: auto;
 }
-
-/* Clock Numbers */
-.number {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.1rem;
-  padding: 5px;
-  box-sizing: border-box;
+.clock-number {
+  position: absolute; width: 100%; height: 100%;
+  text-align: center; font-weight: bold; font-size: 1rem;
+  padding: 2px; box-sizing: border-box;
 }
+.hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; background: white; }
+.hour { width: 4px; height: 25%; z-index: 3; }
+.min { width: 2px; height: 35%; z-index: 2; }
+.sec { width: 1px; height: 40%; background: #ff4d4d; z-index: 1; }
 
-.hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; background: white; border-radius: 4px; z-index: 5;}
-.hour { width: 6px; height: 25%; margin-left: -3px; }
-.min { width: 4px; height: 35%; margin-left: -2px; }
-.sec { width: 2px; height: 40%; background: #ff4d4d; margin-left: -1px; }
-
-/* Table and Scroll */
-.scroll-area { flex: 1; overflow-y: auto; margin-bottom: 10px; }
-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-td { padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-button { padding: 8px; background: #792429; color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; cursor: pointer; }
-button:hover { background: #a53239; }
+.scroll-area { flex: 1; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+td { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 5px 0; }
+button { background: #792429; color: white; border: 1px solid white; padding: 5px; cursor: pointer; border-radius: 4px; }
 
 .reset-btn {
-  position: fixed; bottom: 25px; right: 25px;
+  position: fixed; bottom: 30px; right: 30px;
   padding: 10px 20px; background: #280c0e; color: white;
-  border: 1px solid white; border-radius: 20px; cursor: pointer; z-index: 10000;
+  border: 2px solid white; border-radius: 50px; cursor: pointer; z-index: 9999;
 }
