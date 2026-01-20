@@ -24,7 +24,7 @@ body {
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-  overflow: hidden; /* Prevents internal pulleys/scrollbars */
+  overflow: hidden; 
 }
 
 /* Custom Resize Handle: ) ) */
@@ -58,7 +58,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Component Sections (Flexible Scaling) */
+/* Component Sections */
 .todo-section, .chart-section, .clock-section {
   flex-grow: 1;
   display: flex;
@@ -103,7 +103,7 @@ body {
 .min  { width: 3px; height: 35%; z-index: 2; }
 .sec  { width: 1.5px; height: 40%; background: #ff4d4d; z-index: 1; }
 
-/* Table and Buttons */
+/* Tables & Buttons */
 table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
 th, td { padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
 button {
@@ -113,25 +113,26 @@ button {
 }
 .secondary { background: rgba(255,255,255,0.1) !important; }
 
-/* Reset Button (Bottom Right) */
+/* Floating Reset Button - Explicit Positioning */
 .reset-btn {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: auto;
-  padding: 10px 15px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  bottom: 30px;
+  right: 30px;
+  width: auto !important; /* Overrides global button width */
+  padding: 12px 20px;
+  background: rgba(121, 36, 41, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   color: white;
-  font-size: 0.8rem;
-  border-radius: 8px;
+  font-size: 0.9rem;
+  border-radius: 50px;
   cursor: pointer;
-  z-index: 1000;
-  transition: all 0.3s ease;
+  z-index: 9999;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transition: all 0.2s ease;
 }
 .reset-btn:hover {
-  background: #792429;
-  border-color: #ff4d4d;
-  transform: scale(1.05);
+  background: #a53239;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
 }
