@@ -1,65 +1,93 @@
+/* GLOBAL THEME */
 body {
   margin: 0; padding: 0;
   min-height: 100vh;
   background: linear-gradient(135deg, #280c0e, #50181c, #792429);
   background-attachment: fixed;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: white;
-  display: flex; align-items: center; justify-content: center; /* Centers auth boxes */
+  overflow: hidden; /* Desktop feel: windows move inside the viewport */
 }
 
-.auth-container {
+/* AUTH & FORM PAGES (Login, Register, Save) */
+.auth-page {
+  display: flex; align-items: center; justify-content: center;
+  height: 100vh; width: 100vw;
+}
+
+.window-box {
   background: rgba(40, 12, 14, 0.95);
   backdrop-filter: blur(10px);
   padding: 30px;
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-  width: 320px;
-  text-align: center;
+  width: 100%; max-width: 350px; text-align: center;
 }
-
-h2 { margin-top: 0; color: white; font-size: 1.5rem; letter-spacing: 1px; }
 
 input, select {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  color: white;
-  box-sizing: border-box;
-  outline: none;
+  width: 100%; padding: 12px; margin: 10px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px; color: white; box-sizing: border-box; outline: none;
 }
-
-input:focus { border-color: white; }
+input:focus { border-color: #ff4d4d; background: rgba(255, 255, 255, 0.1); }
 
 button {
-  width: 100%;
-  padding: 12px;
-  background: #792429;
-  border: 1px solid white;
-  color: white;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: 0.2s;
+  width: 100%; padding: 12px; background: #792429;
+  border: 1px solid rgba(255,255,255,0.3); color: white;
+  font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;
 }
-
 button:hover { background: #a53239; }
 
-.link-text {
-  display: block;
-  margin-top: 15px;
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.7);
-  text-decoration: none;
+/* DASHBOARD WINDOWS */
+.window {
+  position: absolute; background: rgba(40, 12, 14, 0.95);
+  backdrop-filter: blur(10px); border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex; flex-direction: column; z-index: 1;
+}
+.window.category-win { background: rgba(165, 50, 57, 0.85); }
+
+.window-header {
+  padding: 8px 12px; background: rgba(121, 36, 41, 1);
+  border-radius: 9px 9px 0 0; cursor: grab;
+  font-weight: bold; font-size: 0.75rem;
+  display: flex; justify-content: space-between; align-items: center;
+  user-select: none;
 }
 
-.time-ago {
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.5);
-  display: block;
+.close-btn {
+  cursor: pointer; background: rgba(0,0,0,0.2); border: none; 
+  color: white; border-radius: 4px; width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
 }
+.close-btn:hover { background: #ff4d4d; }
+
+.window-content { flex: 1; padding: 15px; overflow: hidden; display: flex; flex-direction: column; }
+
+/* TASK LIST STYLING */
+table { width: 100%; border-collapse: collapse; }
+td { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: middle; }
+.time-text { font-size: 0.65rem; color: rgba(255,255,255,0.5); display: block; margin-top: 2px; }
+
+.resize-handle {
+  width: 15px; height: 15px; position: absolute; right: 0; bottom: 0;
+  cursor: nwse-resize; background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.4) 50%);
+}
+
+/* DASHBOARD CONTROLS */
+.controls { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 10000; }
+.ctrl-btn { padding: 8px 15px; background: #280c0e; border: 1px solid white; border-radius: 20px; color: white; cursor: pointer; font-size: 0.8rem; }
+
+#win-manager {
+  position: absolute; bottom: 60px; right: 0; background: #280c0e; 
+  border: 1px solid white; border-radius: 10px; padding: 10px; display: none; flex-direction: column; gap: 5px; width: 160px;
+}
+.win-toggle { background: #792429; color: white; padding: 8px; border: none; border-radius: 5px; cursor: pointer; text-align: left; font-size: 0.75rem; }
+
+/* ANALOG CLOCK */
+.analog-face { width: 120px; height: 120px; border: 2px solid white; border-radius: 50%; position: relative; margin: auto; }
+.clock-number { position: absolute; width: 100%; height: 100%; text-align: center; font-size: 0.7rem; }
+.hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; background: white; border-radius: 2px; }
+.sec { background: #ff4d4d; width: 1px; height: 42%; }
