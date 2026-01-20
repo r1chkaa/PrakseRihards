@@ -6,66 +6,47 @@ body {
   color: white; overflow: hidden;
 }
 
-/* AUTH & BOXES */
-.auth-page { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100vw; }
-.window-box {
-  background: rgba(40, 12, 14, 0.95); backdrop-filter: blur(10px);
-  padding: 30px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6); width: 100%; max-width: 350px; text-align: center;
-}
-
-input, select {
-  width: 100%; padding: 12px; margin: 10px 0; background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; box-sizing: border-box; outline: none;
-}
-
 /* WINDOW DESIGN */
 .window {
   position: absolute; background: rgba(40, 12, 14, 0.95); backdrop-filter: blur(10px);
   border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.3); display: flex; flex-direction: column; z-index: 1;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
 }
-
 .window.category-win { background: rgba(165, 50, 57, 0.9); }
 
+/* CENTERED HEADER & X */
 .window-header {
-  padding: 10px 15px; background: rgba(121, 36, 41, 1); border-radius: 9px 9px 0 0;
+  padding: 8px 12px; background: rgba(121, 36, 41, 1); border-radius: 9px 9px 0 0;
   cursor: grab; font-weight: bold; font-size: 0.75rem; 
-  display: flex; justify-content: space-between; align-items: center; /* FIXED X ALIGNMENT */
+  display: flex; justify-content: space-between; align-items: center;
 }
 
 .close-btn { 
-  cursor: pointer; background: rgba(0,0,0,0.2); border: none; color: white; 
-  border-radius: 4px; width: 24px; height: 24px; font-weight: bold;
-  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; background: rgba(0,0,0,0.3); border: none; color: white; 
+  border-radius: 4px; width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center; /* PERFECT CENTER */
+  font-size: 14px; transition: 0.2s;
 }
 .close-btn:hover { background: #ff4d4d; }
 
 .window-content { flex: 1; padding: 15px; overflow: hidden; display: flex; flex-direction: column; }
 
-/* TABLE & STATS */
-table { width: 100%; border-collapse: collapse; }
-td { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; }
-canvas { width: 100% !important; height: 100% !important; }
+/* RED PULLEYS & TASK ROWS */
+.task-container {
+  display: flex; justify-content: space-between; align-items: center; width: 100%;
+}
+.pulley {
+  display: inline-block; width: 8px; height: 8px; background: #ff4d4d; 
+  border-radius: 50%; margin-right: 10px; box-shadow: 0 0 6px #ff4d4d;
+}
+.task-text { font-weight: 600; font-size: 0.85rem; }
+.time-text { font-size: 0.65rem; color: rgba(255,255,255,0.5); display: block; margin-left: 18px; }
 
-/* CONTROLS & FOLDER */
+/* TABLES */
+table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+td { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+/* CONTROLS */
 .controls { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 10000; }
-.ctrl-btn { padding: 10px 20px; background: #280c0e; border: 1px solid white; border-radius: 20px; color: white; cursor: pointer; font-weight: bold; }
-
-#win-manager { 
-  position: absolute; bottom: 65px; right: 0; background: #280c0e; border: 1px solid white; 
-  border-radius: 10px; padding: 12px; display: none; flex-direction: column; gap: 8px; width: 200px; 
-}
-.win-toggle { 
-  background: rgba(255,255,255,0.05); color: white; padding: 10px; border: 1px solid rgba(255,255,255,0.1); 
-  border-radius: 6px; cursor: pointer; text-align: left; font-size: 0.75rem; 
-  display: flex; justify-content: space-between; align-items: center;
-}
-.win-toggle:hover { background: #792429; }
-
-/* UTILS */
-.time-text { font-size: 0.65rem; color: rgba(255,255,255,0.5); display: block; }
-.resize-handle { width: 15px; height: 15px; position: absolute; right: 0; bottom: 0; cursor: nwse-resize; background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.4) 50%); }
-
-.hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; background: white; border-radius: 2px; }
-.sec { background: #ff4d4d !important; width: 1px; height: 42%; }
+.ctrl-btn { padding: 8px 15px; background: #280c0e; border: 1px solid white; border-radius: 20px; color: white; cursor: pointer; }
+#win-manager { position: absolute; bottom: 60px; right: 0; background: #280c0e; border: 1px solid white; border-radius: 10px; padding: 10px; display: none; flex-direction: column; gap: 5px; width: 180px; }
+.win-toggle { background: #792429; color: white; padding: 8px; border: none; border-radius: 5px; cursor: pointer; text-align: left; font-size: 0.7rem; }
