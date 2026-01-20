@@ -13,6 +13,7 @@
     <select id="uzdveids">
       <option value="Personal">Personal</option>
       <option value="School">School</option>
+      <option value="Work">Work</option>
     </select>
     
     <select id="svarigums">
@@ -21,8 +22,8 @@
     </select>
 
     <button id="saveBtn">Save Task</button>
-    <button onclick="location.href='index.html'" class="secondary">Back</button>
-    <p id="msg"></p>
+    <button onclick="location.href='index.html'" class="secondary" style="background:#444; margin-top:10px;">Back</button>
+    <p id="msg" style="color: #ff4d4d; margin-top: 10px;"></p>
   </div>
 
   <script type="module">
@@ -32,22 +33,25 @@
 
     document.getElementById("saveBtn").onclick = async () => {
       const taskName = document.getElementById("uzd").value;
+      const msg = document.getElementById("msg");
       
       if (taskName.length < 3) {
-        document.getElementById("msg").innerText = "Task name too short!";
+        msg.innerText = "Task name too short!";
         return;
       }
 
+      // We send exactly what the database expects
       const { error } = await supabase.from("todolist").insert([{ 
         uzd: taskName, 
         uzdveids: document.getElementById("uzdveids").value, 
         svarigums: document.getElementById("svarigums").value, 
         username: user,
-        pabeigts: false // Ensures the task starts as not done
+        pabeigts: false 
       }]);
 
       if (error) {
-        document.getElementById("msg").innerText = "Error: " + error.message;
+        console.error(error);
+        msg.innerText = "Error: " + error.message;
       } else {
         location.href = 'index.html';
       }
