@@ -1,35 +1,59 @@
-/* Container for the 3 columns */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  /* Restoring the original red style design */
+  background: linear-gradient(135deg, #280c0e, #50181c, #792429);
+  background-attachment: fixed;
+  display: flex;
+  justify-content: center; /* Horizontally centered */
+  align-items: center;     /* Vertically centered */
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+}
+
 .main-layout {
   display: flex;
+  flex-direction: row;
   justify-content: space-around;
+  align-items: center; /* Centers the three columns vertically relative to each other */
   width: 95vw;
-  height: 85vh;
   gap: 20px;
 }
 
-.todo-section { flex: 2; display: flex; flex-direction: column; }
-.chart-section { flex: 1.5; }
-.clock-section { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,0.2);
+  text-align: center;
+}
 
-/* The Pulley (Custom Scrollbar) */
+/* Pulley Scrollbar Logic */
 .pulley-container {
   overflow-y: auto;
-  max-height: 400px; /* Limits height so scroll appears */
+  max-height: 400px;
   padding-right: 10px;
 }
 
 .pulley-container::-webkit-scrollbar { width: 8px; }
-.pulley-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); }
 .pulley-container::-webkit-scrollbar-thumb { 
   background: #792429; 
   border-radius: 10px; 
 }
 
-/* Analog Clock face */
+/* Bigger Clock Styles */
+.clock-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .analog-face {
-  width: 150px;
-  height: 150px;
-  border: 4px solid white;
+  width: 200px; /* Increased size */
+  height: 200px; /* Increased size */
+  border: 5px solid white;
   border-radius: 50%;
   position: relative;
   background: rgba(255,255,255,0.05);
@@ -41,20 +65,10 @@
   left: 50%;
   transform-origin: bottom;
   background: white;
-}
-.hour { width: 4px; height: 35px; margin-left: -2px; }
-.min { width: 3px; height: 55px; margin-left: -1.5px; }
-.sec { width: 1px; height: 60px; margin-left: -0.5px; background: red; }
-
-/* Modal Background Darkener */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85); /* Dark background */
-  display: none;
-  justify-content: center;
-  align-items: center;
+  border-radius: 4px;
 }
 
-.modal { background: white; color: black; padding: 25px; border-radius: 12px; }
-.secondary { background: #444 !important; }
+/* Specific hand sizes */
+.hour { width: 6px; height: 50px; margin-left: -3px; z-index: 3; }
+.min  { width: 4px; height: 80px; margin-left: -2px; z-index: 2; }
+.sec  { width: 2px; height: 90px; margin-left: -1px; background: #ff4d4d; z-index: 1; }
