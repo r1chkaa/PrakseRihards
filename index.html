@@ -11,30 +11,39 @@
 <body>
 
   <div class="grid-stack">
-    <div class="grid-stack-item" gs-id="todo" gs-x="0" gs-y="0" gs-w="4" gs-h="4">
+    <div class="grid-stack-item" gs-id="todo" gs-x="0" gs-y="0" gs-w="4" gs-h="5">
       <div class="grid-stack-item-content container todo-section">
         <h2 class="drag-handle">My Tasks</h2>
         <div class="pulley-container">
           <table id="list">
-            <thead><tr><th>Task</th><th>Priority</th><th>Done</th><th>Time</th><th>Action</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Priority</th>
+                <th>Done</th>
+                <th>Time</th>
+                <th>Action</th>
+              </tr>
+            </thead>
             <tbody></tbody>
           </table>
         </div>
         <button onclick="location.href='save.html'" style="margin-top:10px;">+ Add Task</button>
+        <button onclick="localStorage.clear(); location.href='login.html';" class="secondary" style="margin-top:5px;">Logout</button>
       </div>
     </div>
 
-    <div class="grid-stack-item" gs-id="chart" gs-x="4" gs-y="0" gs-w="4" gs-h="4">
+    <div class="grid-stack-item" gs-id="chart" gs-x="4" gs-y="0" gs-w="4" gs-h="5">
       <div class="grid-stack-item-content container chart-section">
         <h3 class="drag-handle">Priority Stats</h3>
         <canvas id="priorityChart"></canvas>
       </div>
     </div>
 
-    <div class="grid-stack-item" gs-id="clock" gs-x="8" gs-y="0" gs-w="3" gs-h="4">
+    <div class="grid-stack-item" gs-id="clock" gs-x="8" gs-y="0" gs-w="3" gs-h="5">
       <div class="grid-stack-item-content container clock-section">
         <h3 class="drag-handle">Clock</h3>
-        <div id="digital-clock">00:00:00</div>
+        <div id="digital-clock" style="font-weight: bold; margin-bottom: 10px;">00:00:00</div>
         <div class="analog-face">
           <div class="hand hour" id="hour-hand"></div>
           <div class="hand min" id="min-hand"></div>
@@ -49,34 +58,123 @@
     const user = localStorage.getItem("username");
     if (!user) location.href = "login.html";
 
+    let myChart = null;
+
     // 1. Initialize GridStack
     const grid = GridStack.init({
-      cellHeight: 100,
+      cellHeight: 80,
       margin: 10,
-      handle: '.drag-handle', // Drag only by the header
-      resizable: { handles: 'se' } // Resize from bottom-right
+      handle: '.drag-handle',
+      float: true,
+      resizable: { handles: 'se' }
     });
 
-    // 2. Load Layout from Supabase
-    async function loadLayout() {
-      const { data } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
-      if (data?.dashboard_layout) {
-        grid.load(data.dashboard_layout);
+    // 2. Load Layout and Data
+    async function initialize() {
+      // Load saved window positions
+      const { data: userData } = await supabase.from('users').select('dashboard_layout').eq('username', user).single();
+      if (userData?.dashboard_layout) {
+        grid.load(userData.dashboard_layout);
       }
-      load(); // Load your tasks/chart/clock data
+      
+      // Load Tasks and Chart
+      loadData();
+      
+      // Show the grid after positioning is done to prevent flicker
+      document.querySelector('.grid-stack').style.opacity = "1";
     }
 
-    // 3. Save Layout when windows stop moving/resizing
+    // 3. Save layout on change
     grid.on('change', async () => {
       const layout = grid.save();
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
     });
 
-    // ... Keep your existing load(), updateChart(), and runClock() functions here ...
-    // Note: Use 'loadLayout()' instead of 'load()' at the very end of your script.
+    // Time Ago Logic
+    function getTimeAgo(dateString) {
+      const now = new Date();
+      const past = new Date(dateString);
+      const diffInSecs = Math.floor((now - past) / 1000);
+      if (diffInSecs < 60) return "now";
+      const mins = Math.floor(diffInSecs / 60);
+      if (mins < 60) return `${mins}m ago`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `${hours}h ago`;
+      return `${Math.floor(hours / 24)}d ago`;
+    }
 
-    loadLayout();
+    // Load Tasks from Supabase
+    async function loadData() {
+      const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', { ascending: false });
+      const tbody = document.querySelector("#list tbody");
+      tbody.innerHTML = "";
+      
+      const counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
+
+      data?.forEach(t => {
+        if (counts.hasOwnProperty(t.svarigums)) counts[t.svarigums]++;
+        
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.uzd}</td>
+          <td>${t.svarigums}</td>
+          <td><input type="checkbox" ${t.pabeigts ? 'checked' : ''} onchange="toggleDone('${t.id}', this.checked)"></td>
+          <td style="font-size:0.8em; opacity:0.8;">${getTimeAgo(t.created_at)}</td>
+          <td><button onclick="delTask('${t.id}')" style="width:auto; padding:3px 8px; background:red; border:none; color:white; border-radius:4px; cursor:pointer;">✖</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      updateChart(counts);
+    }
+
+    window.toggleDone = async (id, val) => {
+      await supabase.from("todolist").update({ pabeigts: val }).eq("id", id);
+      loadData();
+    };
+
+    window.delTask = async (id) => {
+      if(confirm("Delete task?")) {
+        await supabase.from("todolist").delete().eq("id", id);
+        loadData();
+      }
+    };
+
+    function updateChart(counts) {
+      const ctx = document.getElementById('priorityChart').getContext('2d');
+      if (myChart) myChart.destroy();
+      myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Urgent', 'This week', 'This month', 'Anytime'],
+          datasets: [{
+            data: [counts.Urgent, counts["This week"], counts["This month"], counts.Anytime],
+            backgroundColor: ['#ff4d4d', '#ff944d', '#4db8ff', '#4dff88']
+          }]
+        },
+        options: { 
+          plugins: { legend: { display: false } },
+          scales: { 
+            y: { beginAtZero: true, ticks: { color: 'white' } },
+            x: { ticks: { color: 'white' } }
+          }
+        }
+      });
+    }
+
+    function runClock() {
+      const now = new Date();
+      document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
+      const s = now.getSeconds();
+      const m = now.getMinutes();
+      const h = now.getHours();
+      document.getElementById('sec-hand').style.transform = `rotate(${s * 6}deg)`;
+      document.getElementById('min-hand').style.transform = `rotate(${m * 6 + s * 0.1}deg)`;
+      document.getElementById('hour-hand').style.transform = `rotate(${(h % 12) * 30 + m * 0.5}deg)`;
+    }
+
     setInterval(runClock, 1000);
+    runClock();
+    initialize();
   </script>
 </body>
 </html>
