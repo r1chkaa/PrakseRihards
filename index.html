@@ -2,27 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Welcome</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome | Productivity Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Specific styles for the welcome page layout */
+    /* Ensure the body acts as a full-screen container */
+    body {
+      margin: 0;
+      overflow: hidden; /* Prevent scrolling during animation */
+    }
+
     .welcome-container {
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 30px;
+      height: 100vh; /* Takes full screen height */
+      width: 100vw;
     }
 
     .welcome-text {
-      font-size: 5rem;
+      font-size: clamp(3rem, 10vw, 6rem); /* Responsive font: shrinks on small screens */
       font-weight: bold;
-      letter-spacing: 10px;
+      letter-spacing: clamp(5px, 2vw, 15px);
       text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(255, 77, 77, 0.4); /* Subtle red glow */
+      
       /* Animation: float-fade in from bottom */
       opacity: 0;
-      transform: translateY(30px);
-      animation: floatFadeIn 1.2s ease-out forwards;
+      transform: translateY(40px);
+      animation: floatFadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
     .button-group {
@@ -35,40 +46,58 @@
     }
 
     .welcome-btn {
-      width: 150px;
-      padding: 10px;
-      background: transparent;
+      width: 160px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(5px);
       border: 2px solid #ff4d4d;
       color: white;
       text-decoration: none;
-      border-radius: 20px;
+      border-radius: 30px;
       font-weight: bold;
-      transition: background 0.3s, transform 0.2s;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .welcome-btn:hover {
       background: #792429;
-      transform: scale(1.05);
+      border-color: white;
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
     }
 
+    /* Keyframes for the entry effect */
     @keyframes floatFadeIn {
       to {
         opacity: 1;
         transform: translateY(0);
       }
     }
+
+    /* Mobile adjustment: stack buttons if screen is very narrow */
+    @media (max-width: 400px) {
+      .button-group {
+        flex-direction: column;
+        width: 80%;
+      }
+      .welcome-btn {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
 
-<div class="welcome-container">
-  <div class="welcome-text">WELCOME</div>
-  
-  <div class="button-group">
-    <a href="login.html" class="welcome-btn">Log in</a>
-    <a href="register.html" class="welcome-btn">Register</a>
+  <div class="welcome-container">
+    <div class="welcome-text">WELCOME</div>
+    
+    <div class="button-group">
+      <a href="login.html" class="welcome-btn">Log in</a>
+      <a href="register.html" class="welcome-btn">Register</a>
+    </div>
   </div>
-</div>
 
 </body>
 </html>
