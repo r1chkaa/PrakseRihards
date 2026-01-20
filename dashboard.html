@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Productivity Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/gridstack@10.0.1/dist/gridstack.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="styles.css">
@@ -36,7 +37,9 @@
     <div class="grid-stack-item" gs-id="chart" gs-x="4" gs-y="0" gs-w="4" gs-h="6">
       <div class="grid-stack-item-content container chart-section">
         <h3 class="drag-handle">Priority Stats</h3>
-        <canvas id="priorityChart"></canvas>
+        <div style="flex-grow: 1; position: relative; min-height: 0;">
+           <canvas id="priorityChart"></canvas>
+        </div>
       </div>
     </div>
 
@@ -57,7 +60,11 @@
   <script type="module">
     import { supabase } from './supabase.js';
     const user = localStorage.getItem("username");
-    if (!user) location.href = "login.html";
+    
+    // Redirect if not logged in
+    if (!user) {
+        location.href = "login.html";
+    }
 
     let myChart = null;
 
@@ -79,23 +86,29 @@
           .eq('username', user)
           .single();
 
-        if (userData?.dashboard_layout) {
+        // If a layout exists in the DB, load it. 
+        // If not, it keeps the default positions in the HTML above.
+        if (userData && userData.dashboard_layout) {
           grid.load(userData.dashboard_layout);
         }
       } catch (err) {
-        console.log("No saved layout yet.");
+        console.log("Starting with default layout.");
       }
       
-      loadData();
-      // Reveal the grid smoothly
+      // Load your actual data
+      await loadData();
+      
+      // Reveal the grid after everything is ready
       document.querySelector('.grid-stack').style.opacity = "1";
     }
 
-    // 3. Save Layout on Movement
+    // 3. Save Layout whenever items are moved or resized
     grid.on('dragstop resizestop', async () => {
       const layout = grid.save();
       await supabase.from('users').update({ dashboard_layout: layout }).eq('username', user);
     });
+
+    // --- Data Management Functions ---
 
     function getTimeAgo(dateString) {
       const now = new Date();
@@ -112,8 +125,9 @@
     async function loadData() {
       const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', { ascending: false });
       const tbody = document.querySelector("#list tbody");
-      tbody.innerHTML = "";
+      if (!tbody) return;
       
+      tbody.innerHTML = "";
       const counts = { Urgent: 0, "This week": 0, "This month": 0, Anytime: 0 };
 
       data?.forEach(t => {
@@ -132,6 +146,7 @@
       updateChart(counts);
     }
 
+    // Globalizing functions for onclick events
     window.toggleDone = async (id, val) => {
       await supabase.from("todolist").update({ pabeigts: val }).eq("id", id);
       loadData();
@@ -145,9 +160,11 @@
     };
 
     function updateChart(counts) {
-      const ctx = document.getElementById('priorityChart').getContext('2d');
+      const ctx = document.getElementById('priorityChart');
+      if (!ctx) return;
+      
       if (myChart) myChart.destroy();
-      myChart = new Chart(ctx, {
+      myChart = new Chart(ctx.getContext('2d'), {
         type: 'bar',
         data: {
           labels: ['Urgent', 'This week', 'This month', 'Anytime'],
@@ -176,11 +193,16 @@
       const m = now.getMinutes();
       const h = now.getHours();
 
-      document.getElementById('sec-hand').style.transform = `rotate(${s * 6}deg)`;
-      document.getElementById('min-hand').style.transform = `rotate(${m * 6 + s * 0.1}deg)`;
-      document.getElementById('hour-hand').style.transform = `rotate(${(h % 12) * 30 + m * 0.5}deg)`;
+      const secHand = document.getElementById('sec-hand');
+      const minHand = document.getElementById('min-hand');
+      const hourHand = document.getElementById('hour-hand');
+
+      if (secHand) secHand.style.transform = `rotate(${s * 6}deg)`;
+      if (minHand) minHand.style.transform = `rotate(${m * 6 + s * 0.1}deg)`;
+      if (hourHand) hourHand.style.transform = `rotate(${(h % 12) * 30 + m * 0.5}deg)`;
     }
 
+    // Startup
     setInterval(runClock, 1000);
     runClock();
     initialize();
