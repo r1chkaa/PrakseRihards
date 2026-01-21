@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Personal Dashboard</title>
+  <title>Mans to-do list</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -10,39 +10,39 @@
 
   <div class="controls">
     <div id="win-manager"></div>
-    <button class="ctrl-btn" onclick="toggleManager()">📁 Windows</button>
-    <button class="ctrl-btn" onclick="resetLayout()">↺ Reset</button>
+    <button class="ctrl-btn" onclick="toggleManager()">Logi</button>
+    <button class="ctrl-btn" onclick="resetLayout()">↺ Restartēt</button>
   </div>
 
   <div id="dashboard-canvas">
     
     <div id="win-tasks" class="window" style="top:40px; left:40px; width:340px; height:500px;">
-      <div class="window-header"><span>ALL TASKS</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
+      <div class="window-header"><span>VISI UZDEVUMI</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
       <div class="window-content">
         <select id="task-filter" onchange="loadTasks()" class="styled-select">
-          <option value="All">All Categories</option>
-          <option value="Personal">Personal</option>
-          <option value="Work">Work</option>
-          <option value="School">School</option>
-          <option value="Event">Event</option>
-          <option value="Holidays">Holidays</option>
-          <option value="Home">Home</option>
-          <option value="Shopping">Shopping</option>
+          <option value="All">Visas kategorijas</option>
+          <option value="Personal">Persōnīgi</option>
+          <option value="Work">Darbs</option>
+          <option value="School">Skola</option>
+          <option value="Event">Svētki</option>
+          <option value="Holidays">Brīvlaiks</option>
+          <option value="Home">Mājas</option>
+          <option value="Shopping">Iepirkšanās</option>
         </select>
         <div style="flex:1; overflow-y:auto;"><table id="list-all"><tbody></tbody></table></div>
-        <button class="action-btn" onclick="location.href='save.html'">+ Add New Task</button>
+        <button class="action-btn" onclick="location.href='save.html'">+ Pievienot jaunu uzdevumu</button>
       </div>
       <div class="resize-handle"></div>
     </div>
 
     <div id="win-stats" class="window" style="top:40px; left:400px; width:380px; height:300px;">
-      <div class="window-header"><span>STATS</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
+      <div class="window-header"><span>Diagramma</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
       <div class="window-content"><canvas id="priorityChart"></canvas></div>
       <div class="resize-handle"></div>
     </div>
 
     <div id="win-clock" class="window" style="top:360px; left:400px; width:240px; height:250px;">
-      <div class="window-header"><span>CLOCK</span><button class="close-btn" onclick="closeWin('win-clock')">×</button></div>
+      <div class="window-header"><span>PULKSTENIS</span><button class="close-btn" onclick="closeWin('win-clock')">×</button></div>
       <div class="window-content">
         <div id="digital-clock" style="text-align:center; font-weight:bold; margin-bottom:5px;">00:00:00</div>
         <div class="analog-face">
@@ -55,25 +55,25 @@
     </div>
 
     <div id="win-urgent" class="window category-win" style="top:40px; left:800px; width:240px; height:220px;">
-        <div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div>
+        <div class="window-header"><span>STEIDZAMI</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div>
         <div class="window-content"><table><tbody id="list-urgent"></tbody></table></div>
         <div class="resize-handle"></div>
     </div>
 
     <div id="win-week" class="window category-win" style="top:280px; left:800px; width:240px; height:220px;">
-        <div class="window-header"><span>📅 THIS WEEK</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
+        <div class="window-header"><span>ŠONEDĒĻ</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
         <div class="window-content"><table><tbody id="list-week"></tbody></table></div>
         <div class="resize-handle"></div>
     </div>
 
     <div id="win-month" class="window category-win" style="top:520px; left:800px; width:240px; height:220px;">
-        <div class="window-header"><span>🗓 THIS MONTH</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div>
+        <div class="window-header"><span>ŠOMĒNESS</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div>
         <div class="window-content"><table><tbody id="list-month"></tbody></table></div>
         <div class="resize-handle"></div>
     </div>
 
     <div id="win-anytime" class="window category-win" style="top:760px; left:800px; width:240px; height:220px;">
-        <div class="window-header"><span>☕ ANYTIME</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div>
+        <div class="window-header"><span>JEBKAD</span><button class="close-btn" onclick="closeWin('win-anytime')">×</button></div>
         <div class="window-content"><table><tbody id="list-anytime"></tbody></table></div>
         <div class="resize-handle"></div>
     </div>
