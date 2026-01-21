@@ -9,16 +9,18 @@
 <body>
 
   <div class="controls">
-    <div id="win-manager"></div>
+    <div id="win-manager">
+      </div>
     <button class="ctrl-btn" onclick="toggleManager()">📁 Windows</button>
     <button class="ctrl-btn" onclick="resetLayout()">↺ Reset</button>
   </div>
 
   <div id="dashboard-canvas">
-    <div id="win-tasks" class="window" style="top:40px; left:40px; width:320px; height:450px;">
+    
+    <div id="win-tasks" class="window" style="top:40px; left:40px; width:340px; height:500px;">
       <div class="window-header"><span>ALL TASKS</span><button class="close-btn" onclick="closeWin('win-tasks')">×</button></div>
       <div class="window-content">
-        <select id="task-filter" onchange="loadTasks()" style="color: black; background: #ffcccc; margin-bottom: 10px; padding: 6px; border-radius: 5px; width: 100%; border: none; font-weight: bold;">
+        <select id="task-filter" onchange="loadTasks()" class="styled-select">
           <option value="All">All Categories</option>
           <option value="Personal">Personal</option>
           <option value="Work">Work</option>
@@ -28,19 +30,21 @@
           <option value="Home">Home</option>
           <option value="Shopping">Shopping</option>
         </select>
-        <div style="flex:1; overflow-y:auto;"><table id="list-all"><tbody></tbody></table></div>
-        <button onclick="location.href='save.html'">+ Add Task</button>
+        <div style="flex:1; overflow-y:auto;">
+            <table id="list-all"><tbody></tbody></table>
+        </div>
+        <button class="action-btn" onclick="location.href='save.html'">+ Add New Task</button>
       </div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-stats" class="window" style="top:40px; left:380px; width:380px; height:300px;">
+    <div id="win-stats" class="window" style="top:40px; left:400px; width:380px; height:300px;">
       <div class="window-header"><span>STATS</span><button class="close-btn" onclick="closeWin('win-stats')">×</button></div>
       <div class="window-content"><canvas id="priorityChart"></canvas></div>
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-clock" class="window" style="top:360px; left:380px; width:240px; height:250px;">
+    <div id="win-clock" class="window" style="top:360px; left:400px; width:240px; height:250px;">
       <div class="window-header"><span>CLOCK</span><button class="close-btn" onclick="closeWin('win-clock')">×</button></div>
       <div class="window-content">
         <div id="digital-clock" style="text-align:center; font-weight:bold; margin-bottom:5px;">00:00:00</div>
@@ -53,8 +57,24 @@
       <div class="resize-handle"></div>
     </div>
 
-    <div id="win-urgent" class="window category-win" style="top:40px; left:780px; width:240px; height:280px;"><div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div><div class="window-content"><table><tbody id="list-urgent"></tbody></table></div><div class="resize-handle"></div></div>
-    <div id="win-week" class="window category-win" style="top:340px; left:780px; width:240px; height:280px;"><div class="window-header"><span>📅 WEEKLY</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div><div class="window-content"><table><tbody id="list-week"></tbody></table></div><div class="resize-handle"></div></div>
+    <div id="win-urgent" class="window category-win" style="top:40px; left:800px; width:240px; height:280px;">
+        <div class="window-header"><span>🚨 URGENT</span><button class="close-btn" onclick="closeWin('win-urgent')">×</button></div>
+        <div class="window-content"><table><tbody id="list-urgent"></tbody></table></div>
+        <div class="resize-handle"></div>
+    </div>
+
+    <div id="win-week" class="window category-win" style="top:340px; left:800px; width:240px; height:280px;">
+        <div class="window-header"><span>📅 THIS WEEK</span><button class="close-btn" onclick="closeWin('win-week')">×</button></div>
+        <div class="window-content"><table><tbody id="list-week"></tbody></table></div>
+        <div class="resize-handle"></div>
+    </div>
+
+    <div id="win-month" class="window category-win" style="top:640px; left:800px; width:240px; height:200px;">
+        <div class="window-header"><span>🗓 THIS MONTH</span><button class="close-btn" onclick="closeWin('win-month')">×</button></div>
+        <div class="window-content"><table><tbody id="list-month"></tbody></table></div>
+        <div class="resize-handle"></div>
+    </div>
+
   </div>
 
   <script type="module">
@@ -69,9 +89,11 @@
     document.addEventListener('mousedown', e => {
       const win = e.target.closest('.window');
       if (!win || e.target.classList.contains('close-btn')) return;
+      
       activeWin = win;
       document.querySelectorAll('.window').forEach(w => w.style.zIndex = 1);
       win.style.zIndex = 10;
+      
       startX = e.clientX; startY = e.clientY;
       startL = win.offsetLeft; startT = win.offsetTop;
       startW = win.offsetWidth; startH = win.offsetHeight;
@@ -92,23 +114,44 @@
       }
     });
 
-    window.addEventListener('mouseup', () => { if(activeWin) saveLayout(); isDragging = isResizing = false; activeWin = null; });
+    window.addEventListener('mouseup', () => { 
+        if(activeWin) saveLayout(); 
+        isDragging = isResizing = false; 
+        activeWin = null; 
+    });
 
     // --- TASK LOADING & FILTERING ---
     window.loadTasks = async () => {
       const filterVal = document.getElementById('task-filter').value;
       const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
       
-      const ids = { 'Urgent': '#list-urgent', 'This week': '#list-week' }; // Add others as needed
+      // Mapping Priorities/Times to Window IDs
+      const ids = { 
+          'Urgent': '#list-urgent', 
+          'This week': '#list-week',
+          'This month': '#list-month' 
+      }; 
+      
+      // Clear all tables
       document.querySelectorAll('table tbody').forEach(b => b.innerHTML = "");
-      let counts = { Urgent:0, "This week":0 };
+      
+      // Initialize counts for Chart
+      let counts = { Urgent:0, "This week":0, "This month":0 };
 
       data?.forEach(t => {
-        const row = `<tr><td><b>${t.uzd}</b><span class="time-text">${t.uzdveids}</span></td><td style="text-align:right"><button onclick="delTask('${t.id}')" style="background:none; border:none; color:white; cursor:pointer; width:auto; padding:0; margin:0;">✖</button></td></tr>`;
+        const row = `<tr>
+            <td><b>${t.uzd}</b><br><span class="time-text">${t.uzdveids}</span></td>
+            <td style="text-align:right">
+                <button onclick="delTask('${t.id}')" class="del-btn">✖</button>
+            </td>
+        </tr>`;
         
+        // Populate "All Tasks"
         if (filterVal === "All" || t.uzdveids === filterVal) {
           document.querySelector("#list-all tbody").innerHTML += row;
         }
+
+        // Populate Category Windows
         if(ids[t.svarigums]) { 
           document.querySelector(ids[t.svarigums]).innerHTML += row; 
           counts[t.svarigums]++; 
@@ -119,8 +162,69 @@
 
     window.delTask = async (id) => { await supabase.from('todolist').delete().eq('id', id); loadTasks(); };
 
-    // --- OTHER CORE LOGIC ---
-    window.closeWin = (id) => { document.getElementById(id).style.display = 'none'; saveLayout(); };
+    // --- WINDOW MANAGER & CONTROLS ---
+    
+    // Close Window
+    window.closeWin = (id) => { 
+        document.getElementById(id).style.display = 'none'; 
+        saveLayout(); 
+        renderManager(); // Refresh menu if open
+    };
+
+    // Toggle Window Manager Menu
+    window.toggleManager = () => {
+        const mgr = document.getElementById('win-manager');
+        if (mgr.style.display === 'flex') {
+            mgr.style.display = 'none';
+        } else {
+            mgr.style.display = 'flex';
+            renderManager();
+        }
+    };
+
+    // Render list of windows inside the manager
+    function renderManager() {
+        const mgr = document.getElementById('win-manager');
+        mgr.innerHTML = '<div style="font-size:0.8rem; margin-bottom:5px; color:#ccc;">Show/Hide Windows:</div>';
+        
+        const windows = document.querySelectorAll('.window');
+        windows.forEach(w => {
+            const name = w.querySelector('.window-header span').innerText;
+            const isVisible = w.style.display !== 'none';
+            const btn = document.createElement('button');
+            btn.className = 'win-toggle';
+            btn.innerHTML = (isVisible ? '✔ ' : '◻ ') + name;
+            btn.onclick = () => {
+                w.style.display = isVisible ? 'none' : 'flex';
+                saveLayout();
+                renderManager(); // Refresh buttons
+            };
+            mgr.appendChild(btn);
+        });
+    }
+
+    // Reset Layout
+    window.resetLayout = async () => {
+        if(!confirm("Reset dashboard layout to default?")) return;
+        
+        const defaults = {
+            'win-tasks': {top:'40px', left:'40px', width:'340px', height:'500px', display:'flex'},
+            'win-stats': {top:'40px', left:'400px', width:'380px', height:'300px', display:'flex'},
+            'win-clock': {top:'360px', left:'400px', width:'240px', height:'250px', display:'flex'},
+            'win-urgent': {top:'40px', left:'800px', width:'240px', height:'280px', display:'flex'},
+            'win-week': {top:'340px', left:'800px', width:'240px', height:'280px', display:'flex'},
+            'win-month': {top:'640px', left:'800px', width:'240px', height:'200px', display:'flex'}
+        };
+
+        // Apply immediately
+        Object.keys(defaults).forEach(id => {
+            const w = document.getElementById(id);
+            if(w) Object.assign(w.style, defaults[id]);
+        });
+
+        // Save empty/default to DB
+        await supabase.from('users').update({ dashboard_layout: defaults }).eq('username', user);
+    };
     
     async function saveLayout() {
       const layout = {};
@@ -142,8 +246,26 @@
       const ctx = document.getElementById('priorityChart');
       if (window.myChart) window.myChart.destroy();
       window.myChart = new Chart(ctx, {
-        type: 'bar', data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#a53239', borderColor: 'white', borderWidth: 1 }] },
-        options: { maintainAspectRatio: false, scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } }, plugins: { legend: { display: false } } }
+        type: 'bar', 
+        data: { 
+            labels: Object.keys(counts), 
+            datasets: [{ 
+                label: 'Tasks',
+                data: Object.values(counts), 
+                backgroundColor: ['#a53239', '#8a2b30', '#6e2226'], 
+                borderColor: 'white', 
+                borderWidth: 1 
+            }] 
+        },
+        options: { 
+            maintainAspectRatio: false, 
+            responsive: true,
+            scales: { 
+                y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }, 
+                x: { ticks: { color: 'white' }, grid: { display: false } } 
+            }, 
+            plugins: { legend: { display: false } } 
+        }
       });
     }
 
