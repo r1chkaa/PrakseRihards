@@ -6,14 +6,17 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="auth-page">
-  <div class="window-box">
-    <h1 style="letter-spacing: 2px; margin-top:0;">REGISTER</h1>
-    <input id="newU" type="text" placeholder="Choose Username">
-    <input id="newP" type="password" placeholder="Choose Password">
-    <button id="regBtn">CREATE ACCOUNT</button>
-    <p id="message" style="color: #ff4d4d; margin-top:15px; font-size:0.85rem;"></p>
+  <div class="auth-container">
+    <h1 class="auth-header">REGISTER</h1>
+    <input id="newU" type="text" placeholder="Choose Username" class="auth-input">
+    <input id="newP" type="password" placeholder="Choose Password" class="auth-input">
+    
+    <button id="regBtn" class="auth-btn">CREATE ACCOUNT</button>
+    
+    <p id="message" style="color: #ff4d4d; margin-top:15px; font-size:0.85rem; font-weight:bold;"></p>
+    
     <div style="margin-top:20px; font-size:0.85rem; opacity:0.8;">
-      Already have an account? <a href="login.html" style="color:#ff4d4d; text-decoration:none; font-weight:bold;">Login</a>
+      Already have an account? <a href="login.html" class="auth-link">Login</a>
     </div>
   </div>
 
