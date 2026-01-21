@@ -6,30 +6,32 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="auth-page">
-  <div class="window-box">
-    <h2 style="margin-top:0;">📝 NEW TASK</h2>
-    <input id="uzd" type="text" placeholder="Task description..." minlength="3">
+  <div class="auth-container">
+    <h2 class="auth-header">📝 NEW TASK</h2>
     
-<select id="uzdveids" style="color: black; background: rgba(255, 255, 255, 0.9);">
-  <option value="Personal" style="color: black;">Personal</option>
-  <option value="Work" style="color: black;">Work</option>
-  <option value="School" style="color: black;">School</option>
-  <option value="Event" style="color: black;">Event</option>
-  <option value="Holidays" style="color: black;">Holidays</option>
-  <option value="Home" style="color: black;">Home</option>
-  <option value="Shopping" style="color: black;">Shopping</option>
-</select>
+    <input id="uzd" type="text" placeholder="Task description..." minlength="3" class="auth-input">
     
-<select id="svarigums" style="color: black; background: rgba(255, 255, 255, 0.9);">
-  <option value="Urgent" style="color: black;">Urgent</option>
-  <option value="This week" style="color: black;">This week</option>
-  <option value="This month" style="color: black;">This month</option>
-  <option value="Anytime" style="color: black;">Anytime</option>
-</select>
+    <select id="uzdveids" class="auth-input">
+      <option value="Personal">Personal</option>
+      <option value="Work">Work</option>
+      <option value="School">School</option>
+      <option value="Event">Event</option>
+      <option value="Holidays">Holidays</option>
+      <option value="Home">Home</option>
+      <option value="Shopping">Shopping</option>
+    </select>
+    
+    <select id="svarigums" class="auth-input">
+      <option value="Urgent">Urgent</option>
+      <option value="This week">This week</option>
+      <option value="This month">This month</option>
+      <option value="Anytime">Anytime</option>
+    </select>
 
-    <button id="saveBtn">SAVE TASK</button>
-    <button onclick="location.href='dashboard.html'" style="background:transparent; border:none; font-size:0.8rem;">CANCEL</button>
-    <p id="msg" style="color:#ff4d4d; margin-top:10px; font-size:0.8rem;"></p>
+    <button id="saveBtn" class="auth-btn">SAVE TASK</button>
+    <button onclick="location.href='dashboard.html'" class="cancel-btn">CANCEL</button>
+    
+    <p id="msg" style="color:#ff4d4d; margin-top:10px; font-size:0.8rem; font-weight:bold;"></p>
   </div>
 
   <script type="module">
