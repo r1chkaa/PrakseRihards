@@ -9,8 +9,7 @@
 <body>
 
   <div class="controls">
-    <div id="win-manager">
-      </div>
+    <div id="win-manager"></div>
     <button class="ctrl-btn" onclick="toggleManager()">📁 Windows</button>
     <button class="ctrl-btn" onclick="resetLayout()">↺ Reset</button>
   </div>
@@ -82,7 +81,7 @@
     const user = localStorage.getItem("username");
     if(!user) location.href = "login.html";
 
-    // --- DRAG & RESIZE ENGINE ---
+    // --- DRAG & RESIZE ---
     let activeWin = null, isDragging = false, isResizing = false;
     let startX, startY, startW, startH, startL, startT;
 
@@ -116,26 +115,17 @@
 
     window.addEventListener('mouseup', () => { 
         if(activeWin) saveLayout(); 
-        isDragging = isResizing = false; 
-        activeWin = null; 
+        isDragging = isResizing = false; activeWin = null; 
     });
 
-    // --- TASK LOADING & FILTERING ---
+    // --- DATA LOGIC ---
     window.loadTasks = async () => {
       const filterVal = document.getElementById('task-filter').value;
       const { data } = await supabase.from('todolist').select('*').eq('username', user).order('created_at', {ascending: false});
       
-      // Mapping Priorities/Times to Window IDs
-      const ids = { 
-          'Urgent': '#list-urgent', 
-          'This week': '#list-week',
-          'This month': '#list-month' 
-      }; 
+      const ids = { 'Urgent': '#list-urgent', 'This week': '#list-week', 'This month': '#list-month' };
       
-      // Clear all tables
       document.querySelectorAll('table tbody').forEach(b => b.innerHTML = "");
-      
-      // Initialize counts for Chart
       let counts = { Urgent:0, "This week":0, "This month":0 };
 
       data?.forEach(t => {
@@ -146,12 +136,10 @@
             </td>
         </tr>`;
         
-        // Populate "All Tasks"
         if (filterVal === "All" || t.uzdveids === filterVal) {
           document.querySelector("#list-all tbody").innerHTML += row;
         }
 
-        // Populate Category Windows
         if(ids[t.svarigums]) { 
           document.querySelector(ids[t.svarigums]).innerHTML += row; 
           counts[t.svarigums]++; 
@@ -162,33 +150,22 @@
 
     window.delTask = async (id) => { await supabase.from('todolist').delete().eq('id', id); loadTasks(); };
 
-    // --- WINDOW MANAGER & CONTROLS ---
-    
-    // Close Window
+    // --- WINDOW MANAGER ---
     window.closeWin = (id) => { 
         document.getElementById(id).style.display = 'none'; 
-        saveLayout(); 
-        renderManager(); // Refresh menu if open
+        saveLayout(); renderManager(); 
     };
 
-    // Toggle Window Manager Menu
     window.toggleManager = () => {
         const mgr = document.getElementById('win-manager');
-        if (mgr.style.display === 'flex') {
-            mgr.style.display = 'none';
-        } else {
-            mgr.style.display = 'flex';
-            renderManager();
-        }
+        mgr.style.display = (mgr.style.display === 'flex') ? 'none' : 'flex';
+        if(mgr.style.display === 'flex') renderManager();
     };
 
-    // Render list of windows inside the manager
     function renderManager() {
         const mgr = document.getElementById('win-manager');
         mgr.innerHTML = '<div style="font-size:0.8rem; margin-bottom:5px; color:#ccc;">Show/Hide Windows:</div>';
-        
-        const windows = document.querySelectorAll('.window');
-        windows.forEach(w => {
+        document.querySelectorAll('.window').forEach(w => {
             const name = w.querySelector('.window-header span').innerText;
             const isVisible = w.style.display !== 'none';
             const btn = document.createElement('button');
@@ -196,17 +173,15 @@
             btn.innerHTML = (isVisible ? '✔ ' : '◻ ') + name;
             btn.onclick = () => {
                 w.style.display = isVisible ? 'none' : 'flex';
-                saveLayout();
-                renderManager(); // Refresh buttons
+                saveLayout(); renderManager();
             };
             mgr.appendChild(btn);
         });
     }
 
-    // Reset Layout
+    // --- RESET LAYOUT ---
     window.resetLayout = async () => {
-        if(!confirm("Reset dashboard layout to default?")) return;
-        
+        if(!confirm("Reset layout?")) return;
         const defaults = {
             'win-tasks': {top:'40px', left:'40px', width:'340px', height:'500px', display:'flex'},
             'win-stats': {top:'40px', left:'400px', width:'380px', height:'300px', display:'flex'},
@@ -215,14 +190,10 @@
             'win-week': {top:'340px', left:'800px', width:'240px', height:'280px', display:'flex'},
             'win-month': {top:'640px', left:'800px', width:'240px', height:'200px', display:'flex'}
         };
-
-        // Apply immediately
         Object.keys(defaults).forEach(id => {
             const w = document.getElementById(id);
             if(w) Object.assign(w.style, defaults[id]);
         });
-
-        // Save empty/default to DB
         await supabase.from('users').update({ dashboard_layout: defaults }).eq('username', user);
     };
     
@@ -247,25 +218,8 @@
       if (window.myChart) window.myChart.destroy();
       window.myChart = new Chart(ctx, {
         type: 'bar', 
-        data: { 
-            labels: Object.keys(counts), 
-            datasets: [{ 
-                label: 'Tasks',
-                data: Object.values(counts), 
-                backgroundColor: ['#a53239', '#8a2b30', '#6e2226'], 
-                borderColor: 'white', 
-                borderWidth: 1 
-            }] 
-        },
-        options: { 
-            maintainAspectRatio: false, 
-            responsive: true,
-            scales: { 
-                y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }, 
-                x: { ticks: { color: 'white' }, grid: { display: false } } 
-            }, 
-            plugins: { legend: { display: false } } 
-        }
+        data: { labels: Object.keys(counts), datasets: [{ label: 'Tasks', data: Object.values(counts), backgroundColor: ['#a53239', '#8a2b30', '#6e2226'], borderColor: 'white', borderWidth: 1 }] },
+        options: { maintainAspectRatio: false, scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } }, plugins: { legend: { display: false } } }
       });
     }
 
