@@ -6,17 +6,14 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="auth-page">
-  <div class="auth-container">
-    <h1 class="auth-header">REGISTER</h1>
+  <div class="window-box">
+    <h1 style="letter-spacing: 2px; margin-top:0;">REGISTER</h1>
     <input id="newU" type="text" placeholder="Choose Username" class="auth-input">
     <input id="newP" type="password" placeholder="Choose Password" class="auth-input">
-    
     <button id="regBtn" class="auth-btn">CREATE ACCOUNT</button>
-    
-    <p id="message" style="color: #ff4d4d; margin-top:15px; font-size:0.85rem; font-weight:bold;"></p>
-    
+    <p id="message" style="color: #ff4d4d; margin-top:15px; font-size:0.85rem;"></p>
     <div style="margin-top:20px; font-size:0.85rem; opacity:0.8;">
-      Already have an account? <a href="login.html" class="auth-link">Login</a>
+      Already have an account? <a href="login.html" style="color:#ff4d4d; text-decoration:none; font-weight:bold;">Login</a>
     </div>
   </div>
 
@@ -26,7 +23,6 @@
       const u = document.getElementById("newU").value.trim();
       const p = document.getElementById("newP").value;
       if(p.length < 4) return document.getElementById("message").innerText = "Password min 4 chars";
-      
       const { error } = await supabase.from('users').insert([{ username: u, password: p }]);
       if (error) document.getElementById("message").innerText = "Username taken";
       else location.href = 'login.html';
